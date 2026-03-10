@@ -17,6 +17,8 @@ import {
 import { buildRouteSeoData } from "@/lib/route-seo";
 import { type RouteVariantKey } from "@/lib/route-variants";
 
+const SITE_PHONE = "+78314233929";
+
 function normalizeSlug(input: string) {
   const raw = (input ?? "").trim();
   let s = raw;
@@ -42,7 +44,7 @@ export function buildRoutePageMetadata(_variantKey: RouteVariantKey) {
   }: {
     params: Promise<{ city: string; to: string }> | { city: string; to: string };
   }): Promise<Metadata> {
-    const resolved = await Promise.resolve(params as any);
+    const resolved = await Promise.resolve(params as { city: string; to: string });
     const fromSlug = normalizeSlug(resolved.city);
     const toSlug = normalizeSlug(resolved.to);
 
@@ -87,7 +89,7 @@ export function createRoutePage(variantKey: RouteVariantKey) {
   }: {
     params: Promise<{ city: string; to: string }> | { city: string; to: string };
   }) {
-    const resolved = await Promise.resolve(params as any);
+    const resolved = await Promise.resolve(params as { city: string; to: string });
     const fromSlug = normalizeSlug(resolved.city);
     const toSlug = normalizeSlug(resolved.to);
 
@@ -152,7 +154,7 @@ export function createRoutePage(variantKey: RouteVariantKey) {
       provider: {
         "@type": "LocalBusiness",
         name: "Вектор РФ",
-        telephone: "+78002225650",
+        telephone: SITE_PHONE,
         areaServed: "Россия",
         url: `https://vector-rf.ru/${fromCity.slug}/${toCity.slug}`,
       },
@@ -233,7 +235,7 @@ export function createRoutePage(variantKey: RouteVariantKey) {
           fromName={fromCity.name}
           toSlug={toCity.slug}
           toName={toCity.name}
-          heading={seoData.heading || `${fromCity.name} — ${toCity.name}`}
+          heading={seoData.h1 || `${fromCity.name} — ${toCity.name}`}
           subtitle={seoData.subtitle}
           routeFacts={seoData.routeFacts}
           content={seoData.content}

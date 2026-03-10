@@ -1,38 +1,32 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { sendLeadToTelegram } from "@/lib/telegram";
 
-const leadSchema = z.object({
-  name: z.string().trim().min(2).max(120),
-  phone: z.string().trim().min(6).max(30),
-  from: z.string().trim().min(1).max(200),
-  to: z.string().trim().min(1).max(200).optional().or(z.literal("")),
-  routeType: z.enum(["city", "airport", "intercity"]),
-  carClass: z.enum(["standard", "comfort", "business", "minivan"]),
-  comment: z.string().trim().max(1000).optional().or(z.literal("")),
-  company: z.string().optional().or(z.literal("")),
-  price: z.union([z.string(), z.number()]).optional().nullable(),
-  distanceKm: z.union([z.string(), z.number()]).optional().nullable(),
-  roundTrip: z.boolean().optional(),
-  utmSource: z.string().optional(),
-  utmMedium: z.string().optional(),
-  utmCampaign: z.string().optional(),
-  utmTerm: z.string().optional(),
-  utmContent: z.string().optional(),
-  datetime: z.string().optional().nullable(),
-});
+type LeadPayload = Record<string, unknown>;
 
 function getCookieValue(cookieHeader: string | null, key: string) {
-  if (!cookieHeader) return undefined;
+  if (!cookieHeader) return null;
 
   const parts = cookieHeader.split(";").map((v) => v.trim());
   const found = parts.find((item) => item.startsWith(`${key}=`));
 
-  if (!found) return undefined;
+  if (!found) return null;
 
   return decodeURIComponent(found.split("=")[1] ?? "");
+}
+
+function asTrimmedString(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function asNullableString(value: unknown) {
+  const v = asTrimmedString(value);
+  return v ? v : null;
+}
+
+function asBoolean(value: unknown) {
+  return value === true;
 }
 
 function normalizePhone(input: string) {
@@ -46,14 +40,78 @@ function normalizePhone(input: string) {
   return raw;
 }
 
-function normalizeNullableText(value?: string | null) {
-  const v = (value ?? "").trim();
-  return v ? v : null;
+function normalizeCarClass(value: unknown) {
+  const v = asTrimmedString(value).toLowerCase();
+
+  if (v === "comfort" || v === "business" || v === "minivan") {
+    return v;
+  }
+
+  return "standard";
+}
+
+function normalizeRouteType(value: unknown) {
+  const v = asTrimmedString(value).toLowerCase();
+
+  if (v === "city" || v === "airport" || v === "intercity") {
+    return v;
+  }
+
+  return null;
+}
+
+function parsePrice(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.max(0, Math.round(value));
+  }
+
+  if (typeof value === "string") {
+    const cleaned = value.replace(/[^\d.-]/g, "").trim();
+    if (!cleaned) return null;
+
+    const parsed = Number(cleaned);
+    if (!Number.isFinite(parsed)) return null;
+
+    return Math.max(0, Math.round(parsed));
+  }
+
+  return null;
+}
+
+function buildComment(params: {
+  comment: string | null;
+  datetime: string | null;
+  routeType: string | null;
+  distanceKm: string | null;
+}) {
+  const parts: string[] = [];
+
+  if (params.comment) {
+    parts.push(params.comment);
+  }
+
+  if (params.datetime) {
+    parts.push(`Дата/время: ${params.datetime}`);
+  }
+
+  if (params.routeType === "airport") {
+    parts.push("Тип поездки: аэропорт");
+  } else if (params.routeType === "intercity") {
+    parts.push("Тип поездки: межгород");
+  } else if (params.routeType === "city") {
+    parts.push("Тип поездки: город");
+  }
+
+  if (params.distanceKm) {
+    parts.push(`Ориентир по расстоянию: ${params.distanceKm} км`);
+  }
+
+  return parts.length ? parts.join("\n\n") : null;
 }
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json().catch(() => null);
+    const body = (await req.json().catch(() => null)) as LeadPayload | null;
 
     if (!body || typeof body !== "object") {
       return NextResponse.json(
@@ -62,72 +120,110 @@ export async function POST(req: Request) {
       );
     }
 
-    const parsed = leadSchema.safeParse(body);
+    const company = asTrimmedString(body.company);
 
-    if (!parsed.success) {
+    if (company) {
+      return NextResponse.json({ ok: true });
+    }
+
+    const name = asTrimmedString(body.name);
+    const phone = normalizePhone(asTrimmedString(body.phone));
+
+    const from =
+      asTrimmedString(body.from) || asTrimmedString(body.fromText);
+
+    const to =
+      asTrimmedString(body.to) || asTrimmedString(body.toText);
+
+    const datetime = asNullableString(body.datetime);
+    const comment = asNullableString(body.comment);
+    const carClass = normalizeCarClass(body.carClass);
+    const roundTrip = asBoolean(body.roundTrip);
+    const routeType = normalizeRouteType(body.routeType);
+    const distanceKm = asNullableString(body.distanceKm);
+
+    if (name.length < 2 || name.length > 120) {
       return NextResponse.json(
-        { ok: false, error: "Некорректные данные заявки" },
+        { ok: false, error: "Укажите корректное имя" },
         { status: 400 }
       );
     }
 
-    const data = parsed.data;
+    if (phone.length < 6 || phone.length > 30) {
+      return NextResponse.json(
+        { ok: false, error: "Укажите корректный телефон" },
+        { status: 400 }
+      );
+    }
 
-    if (data.company && data.company.trim()) {
-      return NextResponse.json({ ok: true });
+    if (!from || from.length > 200) {
+      return NextResponse.json(
+        { ok: false, error: "Укажите адрес отправления" },
+        { status: 400 }
+      );
+    }
+
+    if (!to || to.length > 200) {
+      return NextResponse.json(
+        { ok: false, error: "Укажите адрес назначения" },
+        { status: 400 }
+      );
     }
 
     const cookieHeader = req.headers.get("cookie");
 
     const utmSource =
-      normalizeNullableText(data.utmSource) ??
-      getCookieValue(cookieHeader, "vrf_utm_source") ??
-      null;
+      asNullableString(body.utmSource) ??
+      getCookieValue(cookieHeader, "vrf_utm_source");
 
     const utmMedium =
-      normalizeNullableText(data.utmMedium) ??
-      getCookieValue(cookieHeader, "vrf_utm_medium") ??
-      null;
+      asNullableString(body.utmMedium) ??
+      getCookieValue(cookieHeader, "vrf_utm_medium");
 
     const utmCampaign =
-      normalizeNullableText(data.utmCampaign) ??
-      getCookieValue(cookieHeader, "vrf_utm_campaign") ??
-      null;
+      asNullableString(body.utmCampaign) ??
+      getCookieValue(cookieHeader, "vrf_utm_campaign");
 
-    const utmTerm =
-      normalizeNullableText(data.utmTerm) ??
-      getCookieValue(cookieHeader, "vrf_utm_term") ??
-      null;
-
-    const utmContent =
-      normalizeNullableText(data.utmContent) ??
-      getCookieValue(cookieHeader, "vrf_utm_content") ??
-      null;
-
-    const commentParts = [
-      normalizeNullableText(data.comment),
-      normalizeNullableText(data.datetime)
-        ? `Дата/время: ${data.datetime}`
-        : null,
-    ].filter(Boolean);
+    const price = parsePrice(body.price);
 
     const lead = await prisma.lead.create({
       data: {
-        name: data.name.trim(),
-        phone: normalizePhone(data.phone),
-        from: data.from.trim(),
-        to: normalizeNullableText(data.to),
-        routeType: data.routeType,
-        carClass: data.carClass,
-        comment: commentParts.length ? commentParts.join("\n\n") : null,
-        price: data.price != null ? String(data.price) : null,
-        distanceKm: data.distanceKm != null ? String(data.distanceKm) : null,
-        roundTrip: Boolean(data.roundTrip),
+        name,
+        phone,
+        fromText: from,
+        toText: to,
+        pickupAddress: from,
+        dropoffAddress: to,
+        datetime,
+        carClass,
+        roundTrip,
+        price,
+        priceIsManual: false,
+        comment: buildComment({
+          comment,
+          datetime,
+          routeType,
+          distanceKm,
+        }),
         utmSource,
         utmMedium,
         utmCampaign,
-        utmTerm,
-        utmContent,
+      },
+      select: {
+        id: true,
+        name: true,
+        phone: true,
+        fromText: true,
+        toText: true,
+        datetime: true,
+        carClass: true,
+        roundTrip: true,
+        comment: true,
+        price: true,
+        priceIsManual: true,
+        commission: true,
+        status: true,
+        isDuplicate: true,
       },
     });
 
@@ -137,7 +233,14 @@ export async function POST(req: Request) {
       console.error("Telegram notify error:", telegramError);
     }
 
-    return NextResponse.json({ ok: true, id: lead.id });
+    return NextResponse.json({
+      ok: true,
+      id: lead.id,
+      lead: {
+        id: lead.id,
+        isDuplicate: lead.isDuplicate,
+      },
+    });
   } catch (error) {
     console.error("Lead create error:", error);
 

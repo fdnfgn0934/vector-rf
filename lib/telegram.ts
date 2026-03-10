@@ -2,6 +2,22 @@ import { prisma } from "@/lib/prisma";
 
 type TgApiResult = { ok: boolean; [k: string]: any };
 
+type LeadForTelegram = {
+  id: number;
+  name: string;
+  phone: string;
+  fromText: string;
+  toText: string;
+  datetime?: string | null;
+  carClass: string;
+  roundTrip?: boolean | null;
+  comment?: string | null;
+  price?: number | null;
+  priceIsManual?: boolean | null;
+  commission?: number | null;
+  status?: string | null;
+};
+
 function env(name: string) {
   const v = process.env[name];
   return v && v.trim() ? v.trim() : null;
@@ -43,7 +59,10 @@ function tgBase() {
 }
 
 function escHtml(s: string) {
-  return s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+  return s
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }
 
 function extractLeadIdFromHtml(htmlText: string): number | null {
@@ -53,7 +72,12 @@ function extractLeadIdFromHtml(htmlText: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-async function saveTelegramMessage(params: { kind: "lead"; leadId: number; chatId: string; messageId: number }) {
+async function saveTelegramMessage(params: {
+  kind: "lead";
+  leadId: number;
+  chatId: string;
+  messageId: number;
+}) {
   try {
     await prisma.telegramMessage.create({
       data: {
@@ -68,7 +92,11 @@ async function saveTelegramMessage(params: { kind: "lead"; leadId: number; chatI
   }
 }
 
-export async function sendTelegramText(chatId: string, htmlText: string, keyboard?: any) {
+export async function sendTelegramText(
+  chatId: string,
+  htmlText: string,
+  keyboard?: any
+) {
   if (!tgEnabled()) return { ok: true, skipped: true as const };
 
   const payload: any = {
@@ -77,7 +105,10 @@ export async function sendTelegramText(chatId: string, htmlText: string, keyboar
     parse_mode: "HTML",
     disable_web_page_preview: true,
   };
-  if (keyboard) payload.reply_markup = keyboard;
+
+  if (keyboard) {
+    payload.reply_markup = keyboard;
+  }
 
   const res = await fetch(`${tgBase()}/sendMessage`, {
     method: "POST",
@@ -86,6 +117,7 @@ export async function sendTelegramText(chatId: string, htmlText: string, keyboar
   });
 
   const data = (await res.json().catch(() => null)) as TgApiResult | null;
+
   if (!res.ok || !data?.ok) {
     console.error("TG sendMessage failed:", res.status, data);
     return { ok: false, status: res.status, data };
@@ -98,6 +130,7 @@ export async function sendTelegramToAll(htmlText: string, keyboard?: any) {
   if (!tgEnabled()) return { ok: true, skipped: true as const };
 
   const chatIds = getChatIds();
+
   if (!chatIds.length) {
     console.warn("Telegram: Missing TELEGRAM_CHAT_IDS (or TELEGRAM_CHAT_ID)");
     return { ok: false, error: "no chat ids" };
@@ -105,12 +138,21 @@ export async function sendTelegramToAll(htmlText: string, keyboard?: any) {
 
   const leadId = extractLeadIdFromHtml(htmlText);
 
-  const results: Array<{ chatId: string; ok: boolean; status?: number; data?: any; messageId?: number }> = [];
+  const results: Array<{
+    chatId: string;
+    ok: boolean;
+    status?: number;
+    data?: any;
+    messageId?: number;
+  }> = [];
 
   for (const chatId of chatIds) {
     const r = await sendTelegramText(chatId, htmlText, keyboard);
 
-    const messageId = (r as any)?.data?.result?.message_id ?? (r as any)?.data?.message_id ?? undefined;
+    const messageId =
+      (r as any)?.data?.result?.message_id ??
+      (r as any)?.data?.message_id ??
+      undefined;
 
     results.push({
       chatId,
@@ -133,7 +175,12 @@ export async function sendTelegramToAll(htmlText: string, keyboard?: any) {
   return { ok: results.every((r) => r.ok), results };
 }
 
-export async function editTelegramMessage(chatId: string, messageId: number, htmlText: string, keyboard?: any) {
+export async function editTelegramMessage(
+  chatId: string,
+  messageId: number,
+  htmlText: string,
+  keyboard?: any
+) {
   if (!tgEnabled()) return { ok: true, skipped: true as const };
 
   const payload: any = {
@@ -143,7 +190,10 @@ export async function editTelegramMessage(chatId: string, messageId: number, htm
     parse_mode: "HTML",
     disable_web_page_preview: true,
   };
-  if (keyboard) payload.reply_markup = keyboard;
+
+  if (keyboard) {
+    payload.reply_markup = keyboard;
+  }
 
   const res = await fetch(`${tgBase()}/editMessageText`, {
     method: "POST",
@@ -152,10 +202,12 @@ export async function editTelegramMessage(chatId: string, messageId: number, htm
   });
 
   const data = (await res.json().catch(() => null)) as TgApiResult | null;
+
   if (!res.ok || !data?.ok) {
     console.error("TG editMessageText failed:", res.status, data);
     return { ok: false, status: res.status, data };
   }
+
   return { ok: true, data };
 }
 
@@ -165,17 +217,25 @@ export async function deleteTelegramMessage(chatId: string, messageId: number) {
   const res = await fetch(`${tgBase()}/deleteMessage`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, message_id: messageId }),
+    body: JSON.stringify({
+      chat_id: chatId,
+      message_id: messageId,
+    }),
   });
 
   const data = (await res.json().catch(() => null)) as TgApiResult | null;
+
   if (!res.ok || !data?.ok) {
     return { ok: false, status: res.status, data };
   }
+
   return { ok: true, data };
 }
 
-export async function answerCallbackQuery(callbackQueryId: string, text?: string) {
+export async function answerCallbackQuery(
+  callbackQueryId: string,
+  text?: string
+) {
   if (!tgEnabled()) return { ok: true, skipped: true as const };
 
   const res = await fetch(`${tgBase()}/answerCallbackQuery`, {
@@ -189,21 +249,29 @@ export async function answerCallbackQuery(callbackQueryId: string, text?: string
   });
 
   const data = (await res.json().catch(() => null)) as TgApiResult | null;
+
   if (!res.ok || !data?.ok) {
     console.error("TG answerCallbackQuery failed:", res.status, data);
     return { ok: false, status: res.status, data };
   }
+
   return { ok: true, data };
 }
 
-export async function editLeadMessagesEverywhere(leadId: number, htmlText: string, keyboard?: any) {
+export async function editLeadMessagesEverywhere(
+  leadId: number,
+  htmlText: string,
+  keyboard?: any
+) {
   const msgs = await prisma.telegramMessage.findMany({
     where: { kind: "lead", leadId },
     select: { chatId: true, messageId: true },
   });
 
   for (const m of msgs) {
-    await editTelegramMessage(m.chatId, m.messageId, htmlText, keyboard).catch(() => null);
+    await editTelegramMessage(m.chatId, m.messageId, htmlText, keyboard).catch(
+      () => null
+    );
   }
 }
 
@@ -217,7 +285,9 @@ export async function deleteLeadMessagesEverywhere(leadId: number) {
     await deleteTelegramMessage(m.chatId, m.messageId).catch(() => null);
   }
 
-  await prisma.telegramMessage.deleteMany({ where: { kind: "lead", leadId } });
+  await prisma.telegramMessage.deleteMany({
+    where: { kind: "lead", leadId },
+  });
 }
 
 export function leadKeyboard(leadId: number) {
@@ -236,21 +306,7 @@ export function leadKeyboard(leadId: number) {
   };
 }
 
-export function leadMessage(lead: {
-  id: number;
-  name: string;
-  phone: string;
-  fromText: string;
-  toText: string;
-  datetime?: string | null;
-  carClass: string;
-  roundTrip?: boolean | null;
-  comment?: string | null;
-  price?: number | null;
-  priceIsManual?: boolean | null; // ✅ добавили
-  commission?: number | null;
-  status?: string | null;
-}) {
+export function leadMessage(lead: LeadForTelegram) {
   const status = lead.status || "new";
 
   const statusLabel =
@@ -265,32 +321,55 @@ export function leadMessage(lead: {
       : `ℹ️ ${escHtml(status)}`;
 
   const lines: string[] = [];
+
   lines.push(`<b>Заявка #${lead.id}</b>  ${statusLabel}`);
   lines.push(`👤 <b>${escHtml(lead.name)}</b>`);
   lines.push(`📞 <b>${escHtml(lead.phone)}</b>`);
   lines.push(`📍 <b>${escHtml(lead.fromText)}</b> → <b>${escHtml(lead.toText)}</b>`);
-  if (lead.datetime) lines.push(`🕒 ${escHtml(lead.datetime)}`);
-  lines.push(`🚗 Класс: <b>${escHtml(lead.carClass)}</b>${lead.roundTrip ? " • туда-обратно" : ""}`);
+
+  if (lead.datetime) {
+    lines.push(`🕒 ${escHtml(lead.datetime)}`);
+  }
+
+  lines.push(
+    `🚗 Класс: <b>${escHtml(lead.carClass)}</b>${
+      lead.roundTrip ? " • туда-обратно" : ""
+    }`
+  );
 
   const hasPrice = typeof lead.price === "number";
   const isManual = !!lead.priceIsManual;
 
-  // ✅ Если цена ручная — показываем только итог, авторасчёт НЕ показываем
   if (hasPrice && isManual) {
     lines.push(`💰 Итог: <b>${lead.price} ₽</b>`);
   } else if (hasPrice && !isManual) {
-    // ✅ Если цена не ручная — это авторасчёт
     lines.push(`[Авторасчёт]: ${lead.price} ₽`);
   }
 
-  if (typeof lead.commission === "number") lines.push(`💸 Комиссия: <b>${lead.commission} ₽</b>`);
-  if (lead.comment) lines.push(`💬 ${escHtml(lead.comment)}`);
+  if (typeof lead.commission === "number") {
+    lines.push(`💸 Комиссия: <b>${lead.commission} ₽</b>`);
+  }
+
+  if (lead.comment) {
+    lines.push(`💬 ${escHtml(lead.comment)}`);
+  }
+
   return lines.join("\n");
 }
 
-export async function updateLeadStatusFromTelegram(leadId: number, status: string) {
+export async function sendLeadToTelegram(lead: LeadForTelegram) {
+  return sendTelegramToAll(leadMessage(lead), leadKeyboard(lead.id));
+}
+
+export async function updateLeadStatusFromTelegram(
+  leadId: number,
+  status: string
+) {
   const allowed = new Set(["new", "in_progress", "done", "canceled"]);
-  if (!allowed.has(status)) throw new Error("bad status");
+
+  if (!allowed.has(status)) {
+    throw new Error("bad status");
+  }
 
   const updated = await prisma.lead.update({
     where: { id: leadId },
@@ -306,7 +385,7 @@ export async function updateLeadStatusFromTelegram(leadId: number, status: strin
       roundTrip: true,
       comment: true,
       price: true,
-      priceIsManual: true, // ✅ добавили
+      priceIsManual: true,
       commission: true,
       status: true,
     },
