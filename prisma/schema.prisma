@@ -1,0 +1,238 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // Prisma 7: URL/Direct URL в schema больше не задаются.
+  // Подключение для migrate берётся из prisma.config.ts,
+  // а рантайм подключение идёт через adapter-pg.
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  DISPATCHER
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  role      UserRole @default(DISPATCHER)
+  isActive  Boolean  @default(true)
+
+  leads     Lead[]   @relation("AssignedLeads")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Lead {
+  id             Int      @id @default(autoincrement())
+
+  name           String
+  phone          String
+
+  fromText       String
+  toText         String
+
+  pickupAddress  String?
+  dropoffAddress String?
+  datetime       String?
+
+  carClass       String
+  roundTrip      Boolean  @default(false)
+
+  // Итоговая цена (может быть авторасчёт или ручная)
+  price          Int?
+
+  // ✅ Если true — значит цену задали вручную, авторасчёт в TG не показываем
+  priceIsManual  Boolean  @default(false)
+
+  // ✅ Комиссия (рубли), редактируется из Telegram/админки
+  commission     Int?
+
+  comment        String?
+
+  // new | in_progress | done | canceled
+  status         String   @default("new")
+
+  assignedToId   Int?
+  assignedTo     User?    @relation("AssignedLeads", fields: [assignedToId], references: [id])
+
+  isDuplicate    Boolean  @default(false)
+  duplicateOfId  Int?
+
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+
+  // ✅ Привязки сообщений Telegram, чтобы редактировать/удалять везде
+  tgMessages     TelegramMessage[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([assignedToId])
+  @@map("leads")
+}
+
+model SiteSettings {
+  id           Int      @id @default(autoincrement())
+
+  brandName    String   @default("Вектор РФ")
+  brandTagline String   @default("трансферы и поездки по России")
+
+  phone        String?
+  whatsapp     String?
+  telegram     String?
+  email        String?
+
+  workHours    String?
+  regionNote   String?
+
+  companyName  String?
+  inn          String?
+  ogrn         String?
+  address      String?
+  notes        String?
+
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+model AdminLoginAttempt {
+  id           Int      @id @default(autoincrement())
+  key          String   @unique  // email+ip
+  email        String
+  ip           String
+  attempts     Int      @default(0)
+  firstAttempt DateTime @default(now())
+  blockedUntil DateTime?
+  updatedAt    DateTime @updatedAt
+
+  @@map("admin_login_attempts")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+
+  actorId    Int?
+  actorEmail String?
+
+  action     String
+  entity     String?
+  entityId   Int?
+
+  details    Json?
+
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@index([action, createdAt])
+  @@index([entity, entityId])
+  @@map("audit_log")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+
+  name      String
+  text      String
+  rating    Int?     // 1..5 (необязательно)
+
+  city      String?
+  source    String?
+  isPublic  Boolean  @default(false)
+
+  replyText   String?
+  replyAuthor String?
+  repliedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isPublic, createdAt])
+  @@map("reviews")
+}
+
+// --- Telegram sync ---
+
+model TelegramMessage {
+  id        String   @id @default(cuid())
+
+  kind      String   // "lead" | "announcement"
+  leadId    Int?
+  annId     String?
+
+  chatId    String
+  messageId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lead Lead?          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  ann  Announcement?  @relation(fields: [annId], references: [id], onDelete: Cascade)
+
+  @@index([kind])
+  @@index([leadId])
+  @@index([annId])
+  @@unique([chatId, messageId])
+  @@map("telegram_messages")
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+
+  title     String
+  text      String?
+  price     Int      @default(0)
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  commissions AnnouncementCommission[]
+  tgMessages  TelegramMessage[]
+
+  @@index([isActive, updatedAt])
+  @@map("announcements")
+}
+
+model AnnouncementCommission {
+  id        String   @id @default(cuid())
+
+  annId     String
+  tgUserId  String
+  amount    Int      @default(0)
+
+  updatedAt DateTime @updatedAt
+
+  ann Announcement @relation(fields: [annId], references: [id], onDelete: Cascade)
+
+  @@unique([annId, tgUserId])
+  @@index([annId])
+  @@map("announcement_commissions")
+}
+
+/**
+ * Временное состояние для ввода числа в боте:
+ * нажали кнопку → бот попросил сумму → следующее сообщение трактуем как ввод.
+ */
+model PendingInput {
+  id        String   @id @default(cuid())
+
+  tgUserId  String
+  kind      String   // "lead_price" | "lead_commission" | "ann_price" | "ann_commission"
+  entityId  String   // leadId или annId
+
+  createdAt DateTime @default(now())
+
+  @@unique([tgUserId])
+  @@map("pending_inputs")
+}
