@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { cn } from "@/lib/cn";
 
 type Review = {
   id: number;
@@ -16,15 +17,11 @@ type Review = {
   repliedAt?: string | Date | null;
 };
 
-function cn(...xs: Array<string | false | null | undefined>) {
-  return xs.filter(Boolean).join(" ");
-}
-
 function ControlBase(className?: string) {
   return cn(
-    "h-11 w-full rounded-xl border border-zinc-200 bg-white/90 px-3 text-sm outline-none",
+    "h-11 w-full rounded-xl border border-blue-200/60 bg-white/90 px-3 text-sm outline-none",
     "shadow-[0_1px_0_rgba(16,24,40,0.04)]",
-    "focus:border-sky-300 focus:ring-2 focus:ring-sky-100",
+    "focus:border-blue-400 focus:ring-2 focus:ring-blue-100",
     className
   );
 }
@@ -43,8 +40,8 @@ function Field({
   return (
     <div className={className}>
       <div className="flex items-end justify-between gap-2">
-        <div className="text-xs font-semibold text-zinc-700">{label}</div>
-        {hint ? <div className="text-[11px] text-zinc-500">{hint}</div> : null}
+        <div className="text-xs font-semibold text-slate-700">{label}</div>
+        {hint ? <div className="text-[11px] text-slate-400">{hint}</div> : null}
       </div>
       <div className="mt-1">{children}</div>
     </div>
@@ -181,9 +178,9 @@ export default function ReviewsClient({ initialReviews }: { initialReviews: Revi
           <Field label="Отзыв *" hint="10+ символов" className="sm:col-span-2">
             <textarea
               className={cn(
-                "min-h-[120px] w-full rounded-xl border border-zinc-200 bg-white/90 px-3 py-2 text-sm outline-none",
+                "min-h-[120px] w-full rounded-xl border border-blue-200/60 bg-white/90 px-3 py-2 text-sm outline-none",
                 "shadow-[0_1px_0_rgba(16,24,40,0.04)]",
-                "focus:border-sky-300 focus:ring-2 focus:ring-sky-100"
+                "focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
               )}
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -206,7 +203,7 @@ export default function ReviewsClient({ initialReviews }: { initialReviews: Revi
           disabled={loading}
           className={cn(
             "inline-flex h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-extrabold text-white shadow-sm transition",
-            "bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:opacity-95",
+            "bg-gradient-to-r from-blue-500 via-blue-600 to-blue-800 hover:opacity-95",
             "disabled:cursor-not-allowed disabled:opacity-60"
           )}
         >
@@ -214,11 +211,11 @@ export default function ReviewsClient({ initialReviews }: { initialReviews: Revi
         </button>
 
         {avgRating !== null ? (
-          <div className="text-[11px] text-zinc-500">
+          <div className="text-[11px] text-slate-400">
             Сейчас на странице: <b>{items.length}</b> • Средняя оценка: <b>{avgRating}</b>/5
           </div>
         ) : (
-          <div className="text-[11px] text-zinc-500">Отзыв появится на странице после модерации.</div>
+          <div className="text-[11px] text-slate-400">Отзыв появится на странице после модерации.</div>
         )}
       </form>
     </div>

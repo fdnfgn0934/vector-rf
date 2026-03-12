@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
 import { isValidCitySlug } from "@/lib/city-landings";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 function normalizeSlug(input: string) {
   const raw = (input ?? "").trim();

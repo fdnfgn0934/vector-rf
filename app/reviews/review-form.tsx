@@ -1,16 +1,13 @@
 "use client";
 
 import { useState } from "react";
-
-function cn(...xs: Array<string | false | null | undefined>) {
-  return xs.filter(Boolean).join(" ");
-}
+import { cn } from "@/lib/cn";
 
 function ControlBase(className?: string) {
   return cn(
-    "h-11 w-full rounded-xl border border-zinc-200 bg-white/90 px-3 text-sm outline-none",
+    "h-11 w-full rounded-xl border border-blue-200/60 bg-white/90 px-3 text-sm outline-none",
     "shadow-[0_1px_0_rgba(16,24,40,0.04)]",
-    "focus:border-sky-300 focus:ring-2 focus:ring-sky-100",
+    "focus:border-blue-400 focus:ring-2 focus:ring-blue-100",
     className
   );
 }
@@ -18,7 +15,7 @@ function ControlBase(className?: string) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="text-xs font-semibold text-zinc-700">{label}</div>
+      <div className="text-xs font-semibold text-slate-700">{label}</div>
       <div className="mt-1">{children}</div>
     </div>
   );
@@ -69,6 +66,12 @@ export default function ReviewForm() {
         body: JSON.stringify(payload),
       });
 
+      if (res.status === 429) {
+        const retryAfter = res.headers.get("Retry-After");
+        const mins = retryAfter ? Math.ceil(Number(retryAfter) / 60) : 3;
+        throw new Error(`Слишком много отзывов. Попробуйте через ${mins} мин.`);
+      }
+
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data?.error || "Ошибка отправки");
 
@@ -85,11 +88,11 @@ export default function ReviewForm() {
   }
 
   return (
-    <form onSubmit={submit} className="rounded-2xl border border-zinc-200 bg-white/80 p-5 shadow-sm backdrop-blur">
+    <form onSubmit={submit} className="rounded-2xl border border-blue-200/60 bg-white/80 p-5 shadow-sm backdrop-blur">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="text-lg font-extrabold tracking-tight text-zinc-900">Оставить отзыв</div>
-          <div className="mt-1 text-sm text-zinc-600">Отзыв появится на странице после модерации.</div>
+          <div className="text-lg font-extrabold tracking-tight text-slate-800">Оставить отзыв</div>
+          <div className="mt-1 text-sm text-slate-500">Отзыв появится на странице после модерации.</div>
         </div>
       </div>
 
@@ -125,9 +128,9 @@ export default function ReviewForm() {
         <Field label="Отзыв *">
           <textarea
             className={cn(
-              "min-h-[120px] w-full rounded-xl border border-zinc-200 bg-white/90 px-3 py-2 text-sm outline-none",
+              "min-h-[120px] w-full rounded-xl border border-blue-200/60 bg-white/90 px-3 py-2 text-sm outline-none",
               "shadow-[0_1px_0_rgba(16,24,40,0.04)]",
-              "focus:border-sky-300 focus:ring-2 focus:ring-sky-100"
+              "focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
             )}
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -162,7 +165,7 @@ export default function ReviewForm() {
         disabled={loading || !canSubmit}
         className={cn(
           "mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-extrabold text-white shadow-sm transition",
-          "bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:opacity-95",
+          "bg-gradient-to-r from-blue-500 via-blue-600 to-blue-800 hover:opacity-95",
           "disabled:cursor-not-allowed disabled:opacity-60"
         )}
       >

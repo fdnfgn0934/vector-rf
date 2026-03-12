@@ -8,10 +8,10 @@ const CANONICAL = `${SITE_URL}/minivan-transfer`;
 const PHONE_E164 = "+78002225650";
 
 export const metadata: Metadata = {
-  title: "Минивэн и групповой трансфер — 4–7 мест",
+  title: "Минивэн и групповой трансфер — до 7 мест 24/7",
   description:
     "Минивэн и групповой трансфер: для семьи/компании и большого багажа. В аэропорт, по городу и на межгород. Согласуем стоимость заранее. Онлайн-заявка 24/7.",
-  alternates: { canonical: CANONICAL },
+  alternates: { canonical: "/minivan-transfer" },
   robots: { index: true, follow: true },
   openGraph: {
     type: "website",
@@ -147,6 +147,54 @@ export default function Page() {
           },
         ]}
       />
+
+      {/* Дополнительный контент для SEO */}
+      <section className="mx-auto max-w-6xl px-4 pb-10">
+        <div className="rounded-3xl border border-blue-100/60 bg-white/70 p-6 shadow-sm backdrop-blur md:p-8">
+          <h2 className="text-xl font-extrabold tracking-tight text-slate-900">
+            Минивэн для трансфера и межгорода
+          </h2>
+          <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
+            <p>
+              Минивэн вмещает от 4 до 7 пассажиров и подходит там, где обычный седан уже не справляется: семья с детьми и колясками, команда с оборудованием, группа коллег на деловую поездку. Весь багаж — в одном автомобиле, без пересадок.
+            </p>
+            <p>
+              Особенно востребован трансфер на минивэне в аэропорт: несколько чемоданов, ручная кладь, спортивный инвентарь — всё размещается комфортно. Водитель помогает с погрузкой, отслеживает рейс при встрече из аэропорта.
+            </p>
+            <p>
+              Межгородские поездки на минивэне выгоднее, чем несколько такси: одна стоимость на всю группу, фиксируется до выезда. Маршрут — прямой, без пересадок, с остановками по договорённости.
+            </p>
+            <p>
+              Детские кресла — по запросу. Рекомендуем указать возраст детей при оформлении заявки. Работаем 24/7, принимаем заявки онлайн, по телефону и в Telegram.
+            </p>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {[
+              { title: "Семейные поездки", text: "Дети, коляски, чемоданы — всё в одном авто" },
+              { title: "Трансфер в аэропорт", text: "Большой багаж, встреча с табличкой" },
+              { title: "Корпоративные выезды", text: "Команда едет вместе, стоимость одна" },
+            ].map((item) => (
+              <div key={item.title} className="rounded-2xl border border-blue-100/60 bg-blue-50/40 p-4">
+                <div className="text-sm font-extrabold text-slate-900">{item.title}</div>
+                <p className="mt-1 text-xs leading-5 text-slate-600">{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      {/* CTA секция */}
+      <section className="mx-auto max-w-6xl px-4 pb-12" id="order">
+        <div className="rounded-3xl border border-blue-100/60 bg-white/70 p-6 shadow-sm backdrop-blur md:p-8">
+          <h2 className="text-xl font-extrabold tracking-tight text-slate-900 mb-2">Заказать минивэн</h2>
+          <p className="text-sm text-slate-500 mb-5">Укажите маршрут и количество пассажиров — рассчитаем стоимость и подтвердим заявку</p>
+          <a
+            href="/#order"
+            className="btn-primary inline-flex items-center justify-center rounded-xl px-6 py-3 text-base font-semibold"
+          >
+            Рассчитать стоимость
+          </a>
+        </div>
+      </section>
     </>
   );
 }

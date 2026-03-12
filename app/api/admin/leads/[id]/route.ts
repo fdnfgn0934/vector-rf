@@ -14,10 +14,18 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
 
     const body = await req.json().catch(() => ({}));
 
+    const VALID_STATUSES = ["new", "in_progress", "done", "canceled"] as const;
+    type LeadStatus = (typeof VALID_STATUSES)[number];
+
     // разрешаем только эти поля
     const data: any = {};
 
-    if (typeof body.status === "string") data.status = body.status;
+    if (typeof body.status === "string") {
+      if (!VALID_STATUSES.includes(body.status as LeadStatus)) {
+        return NextResponse.json({ ok: false, error: "invalid status" }, { status: 400 });
+      }
+      data.status = body.status;
+    }
 
     if (body.assignedToId === null) data.assignedToId = null;
     if (typeof body.assignedToId === "number") data.assignedToId = body.assignedToId;

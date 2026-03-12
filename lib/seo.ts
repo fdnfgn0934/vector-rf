@@ -23,7 +23,7 @@ export function buildCityMetadata({
 }): Metadata {
   const path = `/${slug}`;
   const title = `Междугороднее такси из ${fromGenitive} — трансфер 24/7`;
-  const description = `Заказать междугороднее такси из ${fromGenitive}: комфорт, бизнес, минивэн. Стоимость согласуем заранее, подача по времени. Заявка онлайн 24/7.`;
+  const description = `Заказать такси межгород из ${fromGenitive}: комфорт, бизнес, минивэн. Прямые поездки без пересадок, стоимость подтверждаем заранее. Подача по времени 24/7.`;
   const ogAlt = `Вектор РФ — трансфер из ${cityName}`;
 
   return {

@@ -18,7 +18,14 @@ function env(name: string) {
 
 function isValidSecret(req: Request) {
   const expected = env("TELEGRAM_WEBHOOK_SECRET");
-  if (!expected) return true;
+  // Секрет обязателен в продакшне — без него отклоняем запрос
+  if (!expected) {
+    if (process.env.NODE_ENV === "production") {
+      console.warn("[telegram-webhook] TELEGRAM_WEBHOOK_SECRET не задан — все запросы отклонены");
+      return false;
+    }
+    return true; // в dev пропускаем
+  }
   const got = req.headers.get("x-telegram-bot-api-secret-token");
   return !!got && got === expected;
 }

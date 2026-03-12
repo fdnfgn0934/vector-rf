@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
+import {
+  PageShell,
+} from "@/app/ui/shared";
 
 const SITE_URL = "https://vector-rf.ru";
 const PAGE_URL = `${SITE_URL}/city-transfer`;
 
 export const metadata: Metadata = {
-  title: "Городские поездки и трансферы",
+  title: "Городские поездки и трансферы — заказать онлайн",
   description:
     "Городские поездки и трансферы с подачей ко времени: поездки по городу, встречи, деловые маршруты, комфорт, бизнес и минивэн.",
   alternates: {
@@ -19,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: PAGE_URL,
-    title: "Городские поездки и трансферы",
+    title: "Городские поездки и трансферы — заказать онлайн",
     description:
       "Подача ко времени, поездки по городу, встречи, деловые маршруты, комфорт, бизнес и минивэн.",
     siteName: "Вектор РФ",
@@ -29,13 +32,13 @@ export const metadata: Metadata = {
         url: "/og.jpg",
         width: 1200,
         height: 630,
-        alt: "Городские поездки и трансферы",
+        alt: "Городские поездки и трансферы — заказать онлайн",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Городские поездки и трансферы",
+    title: "Городские поездки и трансферы — заказать онлайн",
     description:
       "Подача ко времени, поездки по городу, встречи, деловые маршруты, комфорт, бизнес и минивэн.",
     images: ["/og.jpg"],
@@ -96,7 +99,7 @@ export default function CityTransferPage() {
   const serviceJsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: "Городские поездки и трансферы",
+    name: "Городские поездки и трансферы — заказать онлайн",
     serviceType: "Городской трансфер",
     provider: {
       "@type": "Organization",
@@ -114,7 +117,7 @@ export default function CityTransferPage() {
   };
 
   return (
-    <>
+    <PageShell>
       <Script
         id="ld-city-transfer-breadcrumbs"
         type="application/ld+json"
@@ -134,21 +137,21 @@ export default function CityTransferPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
       />
 
-      <main className="mx-auto max-w-6xl px-4 py-10 md:py-12">
-        <div className="rounded-[28px] border border-zinc-200 bg-white p-6 shadow-sm md:p-8">
-          <nav className="text-sm text-zinc-500">
-            <Link href="/" className="hover:text-zinc-900">
+      <main className="mx-auto max-w-4xl px-4 py-10 md:py-14">
+        <div className="rounded-3xl border border-blue-100/60 bg-white/82 backdrop-blur-md p-6 shadow-sm md:p-8">
+          <nav className="text-sm text-slate-400">
+            <Link href="/" className="hover:text-slate-900">
               Главная
             </Link>
             <span className="mx-2">/</span>
             <span>Городские поездки</span>
           </nav>
 
-          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-zinc-900 md:text-4xl">
+          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
             Городские поездки и трансферы
           </h1>
 
-          <p className="mt-4 max-w-4xl text-base leading-7 text-zinc-700">
+          <p className="mt-4 max-w-4xl text-base leading-7 text-slate-600">
             Городской трансфер подходит для поездок, где важны подача ко времени,
             понятный маршрут и заранее согласованный формат поездки. Это удобно
             для деловых встреч, поездок по нескольким адресам, выездов на вокзал
@@ -156,7 +159,7 @@ export default function CityTransferPage() {
             зависеть от случайной подачи.
           </p>
 
-          <p className="mt-4 max-w-4xl text-base leading-7 text-zinc-700">
+          <p className="mt-4 max-w-4xl text-base leading-7 text-slate-600">
             Такой формат часто выбирают для рабочих задач, встреч гостей,
             сопровождения важных поездок и случаев, когда нужен более
             предсказуемый сервис. Можно заранее выбрать класс автомобиля и
@@ -166,13 +169,13 @@ export default function CityTransferPage() {
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/"
-              className="inline-flex items-center rounded-2xl bg-zinc-900 px-5 py-3 text-sm font-semibold text-white hover:bg-zinc-800"
+              className="btn-primary inline-flex items-center rounded-xl px-5 py-3 text-sm"
             >
               Оставить заявку
             </Link>
             <Link
               href="/services"
-              className="inline-flex items-center rounded-2xl border border-zinc-200 bg-white px-5 py-3 text-sm font-semibold text-zinc-900 hover:bg-zinc-50"
+              className="btn-ghost inline-flex items-center rounded-xl px-5 py-3 text-sm"
             >
               Все услуги
             </Link>
@@ -188,18 +191,18 @@ export default function CityTransferPage() {
           ].map((item) => (
             <div
               key={item}
-              className="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm"
+              className="rounded-3xl border border-blue-100/60 bg-white/80 p-5 shadow-sm backdrop-blur-sm"
             >
-              <div className="text-sm font-semibold text-zinc-800">{item}</div>
+              <div className="text-sm font-semibold text-slate-800">{item}</div>
             </div>
           ))}
         </section>
 
-        <section className="mt-8 rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-extrabold text-zinc-900">
+        <section className="mt-8 rounded-3xl border border-blue-100/60 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-extrabold text-slate-900">
             Когда городской трансфер удобнее стандартной поездки
           </h2>
-          <div className="mt-4 space-y-4 text-sm leading-7 text-zinc-700">
+          <div className="mt-4 space-y-4 text-sm leading-7 text-slate-600">
             <p>
               В первую очередь тогда, когда важно заранее понимать время подачи,
               маршрут и формат автомобиля. Это особенно заметно при рабочих
@@ -215,25 +218,37 @@ export default function CityTransferPage() {
           </div>
         </section>
 
-        <section className="mt-8 rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-extrabold text-zinc-900">FAQ</h2>
+        <section className="mt-8 rounded-3xl border border-blue-100/60 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-extrabold text-slate-900">FAQ</h2>
           <div className="mt-4 space-y-4">
             {faq.map((item) => (
               <div
                 key={item.question}
-                className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4"
+                className="rounded-2xl border border-blue-100/60 bg-blue-50/50 p-4"
               >
-                <div className="text-sm font-semibold text-zinc-900">
+                <div className="text-sm font-bold text-slate-800">
                   {item.question}
                 </div>
-                <div className="mt-2 text-sm leading-6 text-zinc-600">
+                <div className="mt-2 text-sm leading-6 text-slate-500">
                   {item.answer}
                 </div>
               </div>
             ))}
           </div>
         </section>
+      <section className="mx-auto max-w-6xl px-4 pb-12" id="order">
+        <div className="rounded-3xl border border-blue-100/60 bg-white/70 p-6 shadow-sm backdrop-blur md:p-8">
+          <h2 className="text-xl font-extrabold tracking-tight text-slate-900 mb-2">Оставить заявку</h2>
+          <p className="text-sm text-slate-500 mb-5">Укажите маршрут — мы рассчитаем стоимость и свяжемся с вами</p>
+          <a
+            href="/#order"
+            className="btn-primary inline-flex items-center justify-center rounded-xl px-6 py-3 text-base font-semibold"
+          >
+            Рассчитать стоимость
+          </a>
+        </div>
+      </section>
       </main>
-    </>
+    </PageShell>
   );
 }

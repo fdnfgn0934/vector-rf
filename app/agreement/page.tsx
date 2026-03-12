@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import { cn } from "@/lib/cn";
 import Link from "next/link";
 import Script from "next/script";
+import {
+  PageShell,
+} from "@/app/ui/shared";
 
 const SITE_URL = "https://vector-rf.ru";
 const SITE_NAME = "Вектор РФ";
@@ -9,15 +13,11 @@ const PHONE_DISPLAY = "8 (800) 222-56-50";
 const PHONE_TEL = "+78002225650";
 const TELEGRAM = "https://t.me/vector_rf52";
 
-function cn(...xs: Array<string | false | null | undefined>) {
-  return xs.filter(Boolean).join(" ");
-}
-
 export const metadata: Metadata = {
   title: "Пользовательское соглашение и публичная оферта",
   description:
-    "Пользовательское соглашение и публичная оферта сервиса «Вектор РФ»: условия оформления заявки на трансфер, порядок согласования стоимости, ответственность сторон.",
-  alternates: { canonical: `${SITE_URL}/agreement` },
+    "Пользовательское соглашение и публичная оферта сервиса «Вектор РФ»: условия оформления заявки на трансфер, порядок согласования стоимости, ответственнос...",
+  alternates: { canonical: "/agreement" },
   openGraph: {
     type: "website",
     url: `${SITE_URL}/agreement`,
@@ -39,19 +39,19 @@ export const metadata: Metadata = {
 
 function H2({ children, id }: { children: React.ReactNode; id?: string }) {
   return (
-    <h2 id={id} className="scroll-mt-24 text-xl font-extrabold tracking-tight text-zinc-900">
+    <h2 id={id} className="scroll-mt-24 text-xl font-extrabold tracking-tight text-slate-900">
       {children}
     </h2>
   );
 }
 
 function P({ children }: { children: React.ReactNode }) {
-  return <p className="mt-2 text-sm leading-6 text-zinc-700">{children}</p>;
+  return <p className="mt-2 text-sm leading-6 text-slate-600">{children}</p>;
 }
 
 function Li({ children }: { children: React.ReactNode }) {
   return (
-    <li className="flex items-start gap-2 text-sm leading-6 text-zinc-700">
+    <li className="flex items-start gap-2 text-sm leading-6 text-slate-600">
       <span className="mt-2 h-1.5 w-1.5 rounded-full bg-sky-500" />
       <span>{children}</span>
     </li>
@@ -80,7 +80,8 @@ export default function AgreementPage() {
   };
 
   return (
-    <main className="min-h-screen text-zinc-900">
+    <PageShell>
+    <main className="min-h-screen text-slate-900">
       <Script
         id="ld-agreement-breadcrumbs"
         type="application/ld+json"
@@ -100,18 +101,18 @@ export default function AgreementPage() {
       <div className="fixed inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-white/70 to-transparent" />
 
       <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
-        <div className="rounded-3xl border border-zinc-200 bg-white/80 p-6 shadow-sm backdrop-blur md:p-8">
+        <div className="rounded-3xl border border-blue-100/60 bg-white/80 p-6 shadow-sm backdrop-blur md:p-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="text-xs font-semibold text-zinc-600">Документы</div>
+              <div className="text-xs font-semibold text-slate-500">Документы</div>
               <h1 className="mt-2 text-3xl font-extrabold tracking-tight md:text-4xl">
                 Пользовательское соглашение и публичная оферта
               </h1>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600">
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
                 Настоящий документ регулирует порядок оформления заявки на трансфер/перевозку через сайт «Вектор РФ»,
                 а также условия оказания услуг после подтверждения заявки диспетчером.
               </p>
-              <div className="mt-3 text-xs text-zinc-500">
+              <div className="mt-3 text-xs text-slate-400">
                 Дата публикации: {new Date().toLocaleDateString("ru-RU")}
               </div>
             </div>
@@ -125,7 +126,7 @@ export default function AgreementPage() {
               </Link>
               <Link
                 href="/"
-                className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-extrabold text-zinc-900 shadow-sm hover:bg-zinc-50"
+                className="rounded-xl border border-blue-100/60 bg-white px-4 py-3 text-sm font-extrabold text-slate-900 shadow-sm hover:bg-blue-50/50"
               >
                 На главную
               </Link>
@@ -135,27 +136,27 @@ export default function AgreementPage() {
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             <a
               href={`tel:${PHONE_TEL}`}
-              className={cn("rounded-2xl border border-zinc-200 bg-white/80 p-5 shadow-sm backdrop-blur hover:bg-white")}
+              className={cn("rounded-2xl border border-blue-100/60 bg-white/80 p-5 shadow-sm backdrop-blur hover:bg-white")}
             >
-              <div className="text-xs font-semibold text-zinc-600">Телефон</div>
-              <div className="mt-1 text-sm font-extrabold text-zinc-900">{PHONE_DISPLAY}</div>
-              <div className="mt-1 text-sm text-zinc-600">Нажмите, чтобы позвонить</div>
+              <div className="text-xs font-semibold text-slate-500">Телефон</div>
+              <div className="mt-1 text-sm font-extrabold text-slate-900">{PHONE_DISPLAY}</div>
+              <div className="mt-1 text-sm text-slate-500">Нажмите, чтобы позвонить</div>
             </a>
 
             <a
               href={TELEGRAM}
               target="_blank"
               rel="noreferrer"
-              className={cn("rounded-2xl border border-zinc-200 bg-white/80 p-5 shadow-sm backdrop-blur hover:bg-white")}
+              className={cn("rounded-2xl border border-blue-100/60 bg-white/80 p-5 shadow-sm backdrop-blur hover:bg-white")}
             >
-              <div className="text-xs font-semibold text-zinc-600">Telegram</div>
-              <div className="mt-1 text-sm font-extrabold text-zinc-900">Написать в Telegram</div>
-              <div className="mt-1 text-sm text-zinc-600">Ответим быстрее по срочным вопросам</div>
+              <div className="text-xs font-semibold text-slate-500">Telegram</div>
+              <div className="mt-1 text-sm font-extrabold text-slate-900">Написать в Telegram</div>
+              <div className="mt-1 text-sm text-slate-500">Ответим быстрее по срочным вопросам</div>
             </a>
           </div>
         </div>
 
-        <div className="mt-8 rounded-3xl border border-zinc-200 bg-white/75 p-6 shadow-sm backdrop-blur md:p-8">
+        <div className="mt-8 rounded-3xl border border-blue-100/60 bg-white/75 p-6 shadow-sm backdrop-blur md:p-8">
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             <a className="text-sm font-semibold text-sky-800 hover:underline" href="#terms">
               1. Термины
@@ -178,7 +179,7 @@ export default function AgreementPage() {
           </div>
         </div>
 
-        <article className="mt-8 space-y-8 rounded-3xl border border-zinc-200 bg-white/75 p-6 shadow-sm backdrop-blur md:p-8">
+        <article className="mt-8 space-y-8 rounded-3xl border border-blue-100/60 bg-white/75 p-6 shadow-sm backdrop-blur md:p-8">
           <section>
             <H2 id="terms">1. Термины и общие положения</H2>
             <P>
@@ -265,7 +266,7 @@ export default function AgreementPage() {
             <div className="mt-5 flex flex-wrap gap-2">
               <a
                 href={`tel:${PHONE_TEL}`}
-                className="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 py-3 text-sm font-extrabold text-zinc-900 shadow-sm hover:bg-zinc-50"
+                className="inline-flex items-center justify-center rounded-xl border border-blue-100/60 bg-white px-5 py-3 text-sm font-extrabold text-slate-900 shadow-sm hover:bg-blue-50/50"
               >
                 Позвонить
               </a>
@@ -273,7 +274,7 @@ export default function AgreementPage() {
                 href={TELEGRAM}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 py-3 text-sm font-extrabold text-zinc-900 shadow-sm hover:bg-zinc-50"
+                className="inline-flex items-center justify-center rounded-xl border border-blue-100/60 bg-white px-5 py-3 text-sm font-extrabold text-slate-900 shadow-sm hover:bg-blue-50/50"
               >
                 Telegram
               </a>
@@ -287,10 +288,11 @@ export default function AgreementPage() {
           </section>
         </article>
 
-        <footer className="mt-8 text-xs text-zinc-500">
+        <footer className="mt-8 text-xs text-slate-400">
           © {new Date().getFullYear()} Вектор РФ. Все права защищены.
         </footer>
       </div>
     </main>
+    </PageShell>
   );
 }

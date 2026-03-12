@@ -1,6 +1,7 @@
 import type { FAQItem } from "@/lib/city-faq";
 import { CITY_CONTENT } from "@/lib/city-content";
 import { CITY_REGION_BY_SLUG } from "@/lib/city-landings";
+import { isPriorityRoute } from "@/lib/priority-routes";
 
 function hashRoute(input: string) {
   let h = 0;
@@ -218,24 +219,13 @@ const USE_CASES = [
   "переезда между городами",
 ];
 
-function formatHours(hours: number) {
-  const rounded = Math.max(2, Math.round(hours));
-  if (rounded % 10 === 1 && rounded % 100 !== 11) return `${rounded} час`;
-  if ([2, 3, 4].includes(rounded % 10) && ![12, 13, 14].includes(rounded % 100)) return `${rounded} часа`;
-  return `${rounded} часов`;
-}
-
 function estimateRouteMetrics(hash: number, sameRegion: boolean) {
-  const baseKm = sameRegion ? 140 : 420;
-  const range = sameRegion ? 360 : 1350;
-  const km = baseKm + (hash % range);
-  const hours = km / (sameRegion ? 68 : 74);
   return {
-    km,
-    hours: formatHours(hours),
     roadType: pick(ROAD_TYPES, hash, 10),
     departureWindow: pick(DEPARTURE_WINDOWS, hash, 11),
     useCase: pick(USE_CASES, hash, 12),
+    routeLengthLabel: sameRegion ? "удобный межрегиональный маршрут" : "дальний междугородний маршрут",
+    planningLabel: sameRegion ? "обычно заранее планируют подачу и адрес прибытия" : "обычно заранее согласуют подачу, остановки и комфорт в дороге",
   };
 }
 
@@ -269,6 +259,8 @@ export function buildRouteSeoData({
   const regionalTone = sameRegion
     ? pick(SAME_REGION_TEXT, hash, 5)
     : pick(LONG_ROUTE_TEXT, hash, 5);
+
+  const priorityRoute = isPriorityRoute(fromSlug, toSlug);
 
   const cityBase =
     CITY_CONTENT[fromSlug] ??
@@ -313,15 +305,21 @@ export function buildRouteSeoData({
   const subtitle = pick(subtitlePool, hash, 7);
 
   const routeFacts = [
-    `Ориентир по дистанции: около ${metrics.km} км`,
-    `Среднее время в пути: ${metrics.hours}`,
+    `Формат поездки: ${metrics.routeLengthLabel}`,
+    `Планирование маршрута: ${metrics.planningLabel}`,
     `Формат маршрута: ${routeModel}`,
     pick(VARIANT_FACTS[variantKey] ?? VARIANT_FACTS.main, hash, 8),
+    ...(priorityRoute
+      ? [
+          `Приоритетное направление: один из ключевых маршрутов для ${fromName} и ${toName}`,
+          `Для топ-маршрута ${fromName} — ${toName} заранее согласуем подачу, багаж и формат поездки`,
+        ]
+      : []),
   ];
 
   const variantLead = pick(VARIANT_INTRO_LEADS[variantKey] ?? VARIANT_INTRO_LEADS.main, hash, 12);
   const contentParagraphs = [
-  `${variantLead} ${cityBase} Направление ${fromName} — ${toName} мы оформляем как ${routeModel}. Такой формат поездки выбирают, когда нужна прямая дорога между городами без пересадок, ожиданий и сложной логистики. По маршруту ориентировочная дистанция составляет около ${metrics.km} км, а среднее время в пути обычно занимает ${metrics.hours}.`,
+  `${variantLead} ${cityBase} Направление ${fromName} — ${toName} мы оформляем как ${routeModel}. Такой формат поездки выбирают, когда нужна прямая дорога между городами без пересадок, ожиданий и сложной логистики. Для этого направления важны понятные условия поездки, подача ко времени и согласование деталей заранее.`,
 
   `${regionalTone} Поездку ${fromName} — ${toName} часто выбирают ${audience}. Междугородняя дорога проходит по ${metrics.roadType}, поэтому пассажирам важно заранее согласовать подачу автомобиля, формат багажа и точное время отправления. ${pricing}`,
 
@@ -329,7 +327,14 @@ export function buildRouteSeoData({
 
   `Поездка между городами ${fromName} — ${toName} может быть оформлена как индивидуальный маршрут с подачей автомобиля к адресу. Такой формат особенно удобен для ${metrics.useCase}, когда важно доехать напрямую без пересадок и ожиданий транспорта.`,
 
-  `Маршрут ${fromName} — ${toName} относится к категории междугородних поездок по России. В зависимости от маршрута дорога может занимать несколько часов, поэтому пассажиры часто выбирают более комфортный класс автомобиля и заранее планируют время выезда.`,
+  `Маршрут ${fromName} — ${toName} относится к категории междугородних поездок по России. Для таких направлений пассажиры чаще выбирают более комфортный класс автомобиля и заранее согласуют время выезда, багаж и дополнительные пожелания по поездке.`,
+  ...(priorityRoute
+    ? [
+        `Маршрут ${fromName} — ${toName} относится к числу ключевых направлений сервиса. Для таких поездок чаще всего важны ранняя подача, точность по времени прибытия, удобный формат багажа и возможность заранее выбрать класс автомобиля под деловую, семейную или трансферную задачу.`,
+        `Для направления ${fromName} — ${toName} мы рекомендуем бронировать поездку заранее, особенно если важны ночной выезд, подача к вокзалу или аэропорту, детское кресло, минивэн для группы или прибытие к фиксированному времени. Это помогает заранее подтвердить условия и сделать саму поездку спокойнее и предсказуемее.`,
+        `На ключевых маршрутах вроде ${fromName} — ${toName} пассажиры чаще ожидают не просто машину, а полноценный междугородний сервис: адресную подачу, понятную коммуникацию до выезда, аккуратную логистику по дороге и возможность связать основную поездку с аэропортом, вокзалом, отелем или офисом.`,
+      ]
+    : []),
 ];
 
   const keywordTemplates = VARIANT_KEYWORD_TEXTS[variantKey] ?? VARIANT_KEYWORD_TEXTS.main;
@@ -352,18 +357,24 @@ export function buildRouteSeoData({
     },
     {
       question: `Сколько ехать по маршруту ${fromName} — ${toName}?`,
-      answer: `По ориентировочному расчёту дорога занимает около ${metrics.hours}, но реальное время зависит от адресов подачи и прибытия, трафика, дорожной обстановки и остановок по пути.`,
+      answer: `Точное время в пути зависит от адресов подачи и прибытия, трафика, дорожной обстановки, сезона и количества остановок по пути. При подтверждении заявки уточняем детали маршрута ${fromName} — ${toName}.`,
     },
     {
       question: `Можно ли совместить маршрут ${fromName} — ${toName} с трансфером в аэропорт?`,
       answer: airport,
     },
+    ...(priorityRoute
+      ? [{
+          question: `Что важно учесть при бронировании маршрута ${fromName} — ${toName}?`,
+          answer: `Для ключевых направлений лучше заранее указать адрес подачи, желаемое время выезда, количество пассажиров, багаж и дополнительные пожелания вроде детского кресла, минивэна или поездки к рейсу. Так проще подтвердить подходящий формат поездки без спешки.`,
+        }]
+      : []),
   ];
 
   const descriptionVariants = pickMany(
     [
-      `Заказать такси ${fromName} — ${toName}: междугороднее такси без пересадок, ориентир по маршруту около ${metrics.km} км, доступны стандарт, комфорт, бизнес и минивэн.`,
-      `Междугороднее такси ${fromName} — ${toName} 24/7: прямая поездка между городами, подача ко времени, среднее время в пути около ${metrics.hours}.`,
+      `Заказать такси ${fromName} — ${toName}: междугороднее такси без пересадок, доступны стандарт, комфорт, бизнес и минивэн.`,
+      `Междугороднее такси ${fromName} — ${toName} 24/7: прямая поездка между городами, подача ко времени и согласование условий заранее.`,
       `Трансфер ${fromName} — ${toName} по России: адресная подача, поездка без пересадок, выбор класса авто и подтверждение цены заранее.`,
       `Такси межгород ${fromName} — ${toName}: удобный прямой маршрут для командировок, семейных поездок и трансферов между городами.`,
     ],
@@ -376,13 +387,13 @@ export function buildRouteSeoData({
   const titleSets: Record<string, string[]> = {
     main: [
       `Такси ${fromName} — ${toName} | Междугородний трансфер`,
-      `Междугороднее такси ${fromName} — ${toName} | Маршрут ${metrics.km} км`,
+      `Междугороднее такси ${fromName} — ${toName} | Заказать онлайн`,
       `Такси межгород ${fromName} — ${toName} | Заказать трансфер`,
       `Трансфер ${fromName} — ${toName} | Такси 24/7`,
     ],
     route: [
       `Маршрут ${fromName} — ${toName} | Такси и трансфер`,
-      `Поездка ${fromName} — ${toName} | Маршрут ${metrics.km} км`,
+      `Поездка ${fromName} — ${toName} | Такси и трансфер`,
       `Такси по маршруту ${fromName} — ${toName} | Заказать онлайн`,
     ],
     transfer: [
@@ -392,13 +403,13 @@ export function buildRouteSeoData({
     ],
     "taxi-mezhgorod": [
       `Такси межгород ${fromName} — ${toName} | Заказать онлайн`,
-      `Межгород ${fromName} — ${toName} | Такси ${metrics.km} км`,
+      `Межгород ${fromName} — ${toName} | Заказать такси`,
       `Такси между городами ${fromName} — ${toName} | 24/7`,
     ],
     "mezhdugorodnee-taksi": [
       `Междугороднее такси ${fromName} — ${toName} | Цена и заказ`,
       `Заказать междугороднее такси ${fromName} — ${toName} | 24/7`,
-      `Междугородний трансфер ${fromName} — ${toName} | ${metrics.km} км`,
+      `Междугородний трансфер ${fromName} — ${toName} | Онлайн-заявка`,
     ],
     "taksi-iz": [
       `Такси из ${fromName} в ${toName} | Межгород`,
@@ -433,8 +444,8 @@ export function buildRouteSeoData({
     h1,
     subtitle,
     routeFacts,
-    estimatedKm: metrics.km,
-    estimatedTime: metrics.hours,
+    estimatedKm: undefined,
+    estimatedTime: undefined,
     content: contentParagraphs.join("\n\n"),
     contentParagraphs,
     keywordText,

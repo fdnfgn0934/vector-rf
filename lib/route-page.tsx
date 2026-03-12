@@ -16,8 +16,9 @@ import {
 } from "@/lib/seo";
 import { buildRouteSeoData } from "@/lib/route-seo";
 import { type RouteVariantKey } from "@/lib/route-variants";
+import { getPriorityDestinationsForCity } from "@/lib/priority-routes";
 
-const SITE_PHONE = "+78314233929";
+const SITE_PHONE = "+78002225650";
 
 function normalizeSlug(input: string) {
   const raw = (input ?? "").trim();
@@ -114,13 +115,20 @@ export function createRoutePage(variantKey: RouteVariantKey) {
       label: `${toCity.name} — ${fromCity.name}`,
     };
 
-    const moreFromCity = CITY_LANDINGS.filter(
-      (item) => item.slug !== fromCity.slug && item.slug !== toCity.slug
-    )
+    const priorityDestinations = getPriorityDestinationsForCity(fromCity.slug, toCity.slug, 10)
+      .map((item) => item.to)
+      .filter((slug) => slug !== fromCity.slug && slug !== toCity.slug);
+
+    const moreFromCity = [
+      ...priorityDestinations,
+      ...CITY_LANDINGS.map((item) => item.slug),
+    ]
+      .filter((slug, index, arr) => arr.indexOf(slug) === index)
+      .filter((slug) => slug !== fromCity.slug && slug !== toCity.slug)
       .slice(0, 10)
-      .map((item) => ({
-        toSlug: item.slug,
-        toName: prettyCityNameFromSlug(item.slug),
+      .map((slug) => ({
+        toSlug: slug,
+        toName: prettyCityNameFromSlug(slug),
       }));
 
     const breadcrumbsJsonLd = buildBreadcrumbJsonLd([

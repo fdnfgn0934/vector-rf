@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-function cn(...xs: Array<string | false | null | undefined>) {
-  return xs.filter(Boolean).join(" ");
-}
+import { cn } from "@/lib/cn";
 
 export default function RequisitesClient({ plainText }: { plainText: string }) {
   const [copied, setCopied] = useState(false);

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getRequestIp } from "@/lib/request-ip";
 import { sendLeadToTelegram } from "@/lib/telegram";
 
 type LeadPayload = Record<string, unknown>;
@@ -30,14 +32,17 @@ function asBoolean(value: unknown) {
 }
 
 function normalizePhone(input: string) {
-  const raw = (input ?? "").trim();
-  if (!raw) return raw;
+  // Убираем всё кроме цифр и ведущего +
+  const hasPlus = (input ?? "").trim().startsWith("+");
+  const digits = (input ?? "").replace(/\D/g, "");
 
-  if (raw.startsWith("+8")) return `+7${raw.slice(2)}`;
-  if (raw.startsWith("8")) return `+7${raw.slice(1)}`;
-  if (raw.startsWith("7")) return `+7${raw.slice(1)}`;
+  if (!digits) return input?.trim() ?? "";
 
-  return raw;
+  // Нормализуем российские номера
+  if (digits.startsWith("8") && digits.length === 11) return `+7${digits.slice(1)}`;
+  if (digits.startsWith("7") && digits.length === 11) return `+7${digits.slice(1)}`;
+
+  return hasPlus ? `+${digits}` : digits;
 }
 
 function normalizeCarClass(value: unknown) {
@@ -111,6 +116,24 @@ function buildComment(params: {
 
 export async function POST(req: Request) {
   try {
+    // ── Rate limit: 5 заявок с одного IP за 3 минуты ──────────────────────
+    const ip = await getRequestIp();
+    const rl = await checkRateLimit(`leads:${ip}`, { limit: 5, windowMs: 3 * 60 * 1000 });
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { ok: false, error: "Слишком много заявок. Попробуйте через несколько минут." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+            "X-RateLimit-Limit": "5",
+            "X-RateLimit-Remaining": "0",
+          },
+        }
+      );
+    }
+    // ─────────────────────────────────────────────────────────────────────
+
     const body = (await req.json().catch(() => null)) as LeadPayload | null;
 
     if (!body || typeof body !== "object") {

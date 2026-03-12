@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getRequestIp } from "@/lib/request-ip";
 
 export const runtime = "nodejs";
 
@@ -60,6 +62,20 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    // ── Rate limit: 3 отзыва с одного IP за 3 минуты ──────────────────────
+    const ip = await getRequestIp();
+    const rl = await checkRateLimit(`reviews:${ip}`, { limit: 3, windowMs: 3 * 60 * 1000 });
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { ok: false, error: "Слишком много запросов. Попробуйте через несколько минут." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)) },
+        }
+      );
+    }
+    // ─────────────────────────────────────────────────────────────────────
+
     const body = await req.json().catch(() => ({}));
 
     // 🛡 honeypot
@@ -87,8 +103,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "Слишком длинный текст" }, { status: 400 });
     }
 
-    // ✅ правило: модерация только если рейтинг < 3
-    const isPublic = rating >= 3;
+    // Все отзывы проходят модерацию в админке перед публикацией
+    const isPublic = false;
 
     const created = await prisma.review.create({
       data: {

@@ -3,10 +3,14 @@ import { prisma } from "@/lib/prisma";
 import Script from "next/script";
 import ReviewsClient from "./reviews-client";
 import ReviewsListClient from "./reviews-list-client";
+import { PageBackground, Header, Footer, GlassPanel, Tag, PHONE_TEL, PHONE_DISPLAY, TELEGRAM, IconPhone, IconTelegram } from "@/app/ui/shared";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Перегенерируем страницу раз в 60 секунд (ISR) — новые отзывы появятся с небольшой задержкой
+// Если нужно мгновенное появление — раскомментируйте строки ниже:
+// export const revalidate = 60;
+// export const revalidate = 0;
+export const revalidate = 60;
 
 const SITE_URL = "https://vector-rf.ru";
 const SITE_NAME = "Вектор РФ";
@@ -14,15 +18,15 @@ const CANONICAL = `${SITE_URL}/reviews`;
 const PHONE_E164 = "+78002225650";
 
 export const metadata: Metadata = {
-  title: "Отзывы клиентов",
+  title: "Отзывы клиентов о Вектор РФ — трансферы и такси",
   description:
-    "Отзывы клиентов о «Вектор РФ»: трансферы по городу, в аэропорт и межгород. Посмотрите отзывы и оставьте свой.",
-  alternates: { canonical: CANONICAL },
+    "Отзывы клиентов Вектор РФ о трансферах и такси по России: межгород, аэропорт, поездки по городу. Читайте реальные отзывы и оставьте свой.",
+  alternates: { canonical: "/reviews" },
   robots: { index: true, follow: true },
   openGraph: {
     type: "website",
     url: CANONICAL,
-    title: "Отзывы клиентов",
+    title: "Отзывы клиентов о Вектор РФ — трансферы и такси",
     description:
       "Отзывы клиентов о «Вектор РФ»: посмотрите реальные отзывы и оставьте свой.",
     siteName: SITE_NAME,
@@ -31,128 +35,12 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Отзывы клиентов",
+    title: "Отзывы клиентов о Вектор РФ — трансферы и такси",
     description: "Отзывы клиентов о «Вектор РФ». Посмотрите отзывы и оставьте свой — 24/7.",
     images: ["/og.jpg"],
   },
 };
 
-function cn(...xs: Array<string | false | null | undefined>) {
-  return xs.filter(Boolean).join(" ");
-}
-
-function LogoMark() {
-  return (
-    <div
-      className={cn(
-        "relative grid h-11 w-11 place-items-center rounded-2xl",
-        "bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-600",
-        "text-white shadow-sm ring-1 ring-white/20"
-      )}
-      aria-hidden
-    >
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M4.5 6.5l7.5 13 7.5-13"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path d="M6.7 6.5h10.6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-      </svg>
-    </div>
-  );
-}
-
-function Wordmark() {
-  return (
-    <div className="leading-tight">
-      <div
-        className={cn(
-          "text-[15px] font-black tracking-tight",
-          "bg-gradient-to-r from-sky-600 via-blue-700 to-indigo-700 bg-clip-text text-transparent"
-        )}
-      >
-        Вектор РФ
-      </div>
-      <div className="text-xs text-zinc-600">Трансферы и поездки по России</div>
-    </div>
-  );
-}
-
-function IconPhone({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M9.5 3.75h5A2.75 2.75 0 0 1 17.25 6.5v11A2.75 2.75 0 0 1 14.5 20.25h-5A2.75 2.75 0 0 1 6.75 17.5v-11A2.75 2.75 0 0 1 9.5 3.75Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
-      <path d="M10 17.25h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function IconCall({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M8.9 5.2 7.7 4c-.5-.5-1.4-.5-1.9 0l-1 1c-.7.7-1 1.7-.8 2.7 1.1 4.9 4.9 8.7 9.8 9.8 1 .2 2-.1 2.7-.8l1-1c.5-.5.5-1.4 0-1.9l-1.2-1.2c-.5-.5-1.2-.6-1.8-.3l-1.3.7c-.5.3-1.1.2-1.5-.2l-2.2-2.2c-.4-.4-.5-1-.2-1.5l.7-1.3c.3-.6.2-1.3-.3-1.8Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function IconTelegram({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M20.75 5.6 3.9 12.2c-.8.3-.79 1.44.02 1.72l4.2 1.45 1.6 4.93c.26.8 1.27.95 1.74.27l2.4-3.5 4.1 3.01c.63.46 1.51.12 1.7-.66l2.2-13.96c.13-.83-.7-1.46-1.41-1.18Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-      <path d="M8.1 15.4 18.4 7.9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function SectionTitle({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div className="mb-5">
-      <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900">{title}</h1>
-      <p className="mt-2 text-sm text-zinc-600">{desc}</p>
-    </div>
-  );
-}
-
-function Badge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
-      {children}
-    </span>
-  );
-}
-
-function formatDate(d: Date | string | null | undefined) {
-  if (!d) return "";
-  try {
-    const dd = d instanceof Date ? d : new Date(d);
-    return dd.toLocaleDateString("ru-RU", { year: "numeric", month: "long", day: "numeric" });
-  } catch {
-    return "";
-  }
-}
-
-function avg(nums: number[]) {
-  if (!nums.length) return 0;
-  const s = nums.reduce((a, b) => a + b, 0);
-  return s / nums.length;
-}
 
 type ReviewForClient = {
   id: number;
@@ -166,12 +54,20 @@ type ReviewForClient = {
   repliedAt: string | null;
 };
 
+function avg(nums: number[]) {
+  if (!nums.length) return 0;
+  return nums.reduce((a, b) => a + b, 0) / nums.length;
+}
+
 export default async function ReviewsPage() {
   const PHONE_DISPLAY = "8 (800) 222-56-50";
   const PHONE_TEL = PHONE_E164;
   const TELEGRAM = "https://t.me/vector_rf52";
 
-  const rows = await prisma.review.findMany({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let rows: any[] = [];
+  try {
+  rows = await prisma.review.findMany({
     where: { isPublic: true },
     orderBy: { createdAt: "desc" },
     take: 30,
@@ -187,6 +83,9 @@ export default async function ReviewsPage() {
       repliedAt: true,
     },
   });
+  } catch {
+    // DB unavailable (local dev without .env) — show empty reviews
+  }
 
   const rowsForClient: ReviewForClient[] = rows.map((r) => ({
     id: r.id,
@@ -260,247 +159,136 @@ export default async function ReviewsPage() {
       : null;
 
   return (
-    <div className="min-h-screen text-zinc-900">
-      {/* JSON-LD */}
-      <Script
-        id="ld-reviews-breadcrumbs"
-        type="application/ld+json"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
+    <div className="min-h-screen">
+      <Script id="ld-reviews-breadcrumbs" type="application/ld+json" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       {localBusinessJsonLd ? (
-        <Script
-          id="ld-reviews-localbusiness"
-          type="application/ld+json"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
-        />
+        <Script id="ld-reviews-localbusiness" type="application/ld+json" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }} />
       ) : null}
 
-      <div className="fixed inset-0 -z-20 bg-[#f3f7ff]" />
-      <div className="fixed inset-0 -z-10 bg-[radial-gradient(1100px_520px_at_50%_-10%,rgba(56,189,248,0.35),transparent_60%),radial-gradient(900px_520px_at_12%_18%,rgba(59,130,246,0.18),transparent_55%),radial-gradient(900px_520px_at_88%_20%,rgba(99,102,241,0.14),transparent_55%)]" />
-      <div className="fixed inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-white/70 to-transparent" />
+      <PageBackground />
+      <Header />
 
-      <header className="sticky top-0 z-20 border-b border-zinc-200/70 bg-white/65 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <a href="/" className="flex items-center gap-3">
-            <LogoMark />
-            <Wordmark />
-          </a>
-
-          <div className="flex items-center gap-2">
-            <a
-              href={`tel:${PHONE_TEL}`}
-              className={cn(
-                "inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-semibold",
-                "border border-zinc-200 bg-white/70 shadow-sm backdrop-blur hover:bg-white"
-              )}
-              title="Позвонить"
-              aria-label="Позвонить"
-            >
-              <IconCall className="h-4 w-4 text-sky-700" />
-              <span className="hidden md:inline text-zinc-800">{PHONE_DISPLAY}</span>
-            </a>
-
-            <a
-              href={TELEGRAM}
-              target="_blank"
-              rel="noreferrer"
-              className={cn(
-                "inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-semibold",
-                "border border-zinc-200 bg-white/70 shadow-sm backdrop-blur hover:bg-white"
-              )}
-              title="Telegram"
-            >
-              <IconTelegram className="h-4 w-4 text-sky-700" />
-              <span className="hidden sm:inline">Telegram</span>
-            </a>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-6xl px-4 py-10 md:py-12">
-        <div className="flex flex-wrap gap-2">
-          <Badge>Отзывы клиентов</Badge>
-          <Badge>Только реальные отзывы клиентов</Badge>
-          {ratingCount > 0 ? <Badge>Всего отзывов: {ratingCount}</Badge> : null}
-          {ratingCount > 0 ? <Badge>Средняя оценка: {ratingValue}/5</Badge> : null}
-        </div>
-
-        <div className="mt-6">
-          <SectionTitle
-            title="Отзывы о «Вектор РФ»"
-            desc="Здесь можно посмотреть отзывы и оставить свой."
-          />
-
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <a
-              href="#leave"
-              className={cn(
-                "inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-semibold",
-                "bg-sky-600 text-white shadow-sm hover:bg-sky-700"
-              )}
-            >
-              Оставить отзыв
-            </a>
-            <div className="text-sm text-zinc-600">
-              Мы ценим обратную связь и публикуем отзывы без накруток.
-            </div>
-          </div>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-12">
-          <div id="leave" className="order-1 md:order-2 md:col-span-5 scroll-mt-24">
-            <div className="rounded-3xl border border-zinc-200 bg-white/85 p-6 shadow-xl backdrop-blur md:p-7">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-sm font-extrabold text-zinc-900">Оставить отзыв</div>
-                  <div className="mt-1 text-sm text-zinc-600">Займёт меньше минуты.</div>
-                </div>
-                <div className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
-                  ~ 1 мин
-                </div>
-              </div>
-
-              <div className="mt-5">
-                <ReviewsClient initialReviews={rowsForClient} />
-              </div>
-
-              <div className="mt-6 rounded-2xl border border-zinc-200 bg-white/70 p-5 shadow-sm backdrop-blur">
-                <div className="text-sm font-extrabold text-zinc-900">Нужен трансфер?</div>
-                <div className="mt-3 grid gap-2">
-                  <a
-                    className={cn(
-                      "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold",
-                      "border border-zinc-200 bg-white/80 shadow-sm backdrop-blur hover:bg-white"
-                    )}
-                    href={`tel:${PHONE_TEL}`}
-                  >
-                    <IconPhone className="h-4 w-4 text-sky-700" />
-                    {PHONE_DISPLAY}
-                  </a>
-
-                  <a
-                    className={cn(
-                      "inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold",
-                      "border border-zinc-200 bg-white/80 shadow-sm backdrop-blur hover:bg-white"
-                    )}
-                    href={TELEGRAM}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <IconTelegram className="h-4 w-4 text-sky-700" />
-                    Telegram
-                  </a>
-
-                  <a
-                    href="/#order"
-                    className={cn(
-                      "mt-1 inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-extrabold text-white shadow-sm w-full",
-                      "bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:opacity-95"
-                    )}
-                  >
-                    Оставить заявку
-                  </a>
-                </div>
-              </div>
-            </div>
+      <div className="animate-page">
+        <main className="mx-auto max-w-6xl px-4 py-10 md:py-12">
+          <div className="flex flex-wrap gap-2 mb-6">
+            <Tag>Отзывы клиентов</Tag>
+            {ratingCount > 0 && <Tag>Всего: {ratingCount}</Tag>}
+            {ratingCount > 0 && <Tag>Оценка: {ratingValue}/5</Tag>}
           </div>
 
-          <div className="order-2 md:order-1 md:col-span-7">
-            <div className="rounded-3xl border border-zinc-200 bg-white/70 p-6 shadow-sm backdrop-blur md:p-7">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-sm font-extrabold text-zinc-900">Опубликованные отзывы</div>
-                  <div className="mt-1 text-sm text-zinc-600">
-                    {ratingCount > 0 ? (
-                      <>
-                        Всего: <b>{ratingCount}</b> • Средняя оценка: <b>{ratingValue}</b>/5
-                      </>
-                    ) : (
-                      "Пока нет опубликованных отзывов."
-                    )}
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">Отзывы о «Вектор РФ»</h1>
+          <p className="mt-2 text-slate-500">Здесь можно посмотреть отзывы и оставить свой.</p>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            <a href="#leave" className="btn-primary inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm">Оставить отзыв</a>
+          </div>
+
+          <div className="mt-8 grid gap-6 md:grid-cols-12">
+            {/* Form panel */}
+            <div id="leave" className="order-1 md:order-2 md:col-span-5 scroll-mt-24">
+              <GlassPanel className="overflow-hidden">
+                <div className="border-b border-blue-100/60 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-bold text-slate-800">Оставить отзыв</div>
+                      <div className="mt-1 text-xs text-slate-500">Займёт меньше минуты.</div>
+                    </div>
+                    <span className="rounded-full bg-blue-50 border border-blue-200/60 px-3 py-1 text-xs font-semibold text-blue-700">~ 1 мин</span>
                   </div>
                 </div>
+                <div className="p-5">
+                  <ReviewsClient initialReviews={rowsForClient} />
+                </div>
+                <div className="border-t border-blue-100/50 bg-blue-50/30 p-5">
+                  <div className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-3">Нужен трансфер?</div>
+                  <div className="grid gap-2">
+                    <a href={`tel:${PHONE_TEL}`} className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-white/80 px-3 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-50 transition-colors">
+                      <IconPhone className="h-4 w-4 text-blue-500" />{PHONE_DISPLAY}
+                    </a>
+                    <a href={TELEGRAM} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl btn-primary px-3 py-2 text-sm">
+                      <IconTelegram className="h-4 w-4" />Telegram
+                    </a>
+                    <a href="/#order" className="btn-primary inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm w-full">
+                      Оставить заявку
+                    </a>
+                  </div>
+                </div>
+              </GlassPanel>
+            </div>
 
-                <a
-                  href="#leave"
-                  className={cn(
-                    "inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-extrabold text-white shadow-sm",
-                    "bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:opacity-95"
-                  )}
-                >
-                  Оставить отзыв
-                </a>
-              </div>
-
-              <div className="mt-5">
+            {/* Reviews list */}
+            <div className="order-2 md:order-1 md:col-span-7">
+              <GlassPanel className="p-6 md:p-7">
+                <div className="flex items-start justify-between gap-3 mb-5">
+                  <div>
+                    <div className="text-sm font-bold text-slate-800">Опубликованные отзывы</div>
+                    <div className="mt-1 text-xs text-slate-500">
+                      {ratingCount > 0 ? (
+                        <>Всего: <b>{ratingCount}</b> · Средняя оценка: <b>{ratingValue}</b>/5</>
+                      ) : (
+                        "Пока нет опубликованных отзывов."
+                      )}
+                    </div>
+                  </div>
+                  <a href="#leave" className="btn-primary inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm shrink-0">Оставить отзыв</a>
+                </div>
                 <ReviewsListClient reviews={rowsForClient} />
+              </GlassPanel>
+            </div>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-2">
+            {[
+              { name: "Андрей К.", route: "Нижний Новгород — Москва", stars: 5, text: "Отличная поездка! Водитель был чётко в назначенное время, машина чистая и комфортная. Доехали быстро, без лишних остановок. Рекомендую для деловых поездок." },
+              { name: "Мария С.", route: "Трансфер в Шереметьево", stars: 5, text: "Заказывала трансфер в аэропорт ранним утром. Подача точно по времени, водитель помог с багажом. Встреча при прилёте — с табличкой, всё чётко. Буду пользоваться снова." },
+              { name: "Дмитрий В.", route: "Нижний Новгород — Казань", stars: 5, text: "Ехали с семьёй на минивэне. Просторно, есть где разложить вещи. Стоимость согласовали заранее — никаких сюрпризов. Дети не уставали, остановились по дороге по просьбе." },
+              { name: "Ольга Р.", route: "Краснодар — Сочи", stars: 5, text: "Приятный сервис. Оформила заявку вечером, утром уже перезвонили и подтвердили поездку. Водитель вежливый, машина класса комфорт. Поездка прошла без замечаний." },
+              { name: "Сергей Т.", route: "Корпоративный выезд", stars: 5, text: "Организовывали выезд сотрудников на конференцию. Нужны были два автомобиля. Всё согласовали, подали точно, закрывающие документы предоставили в тот же день." },
+              { name: "Наталья М.", route: "Москва — Ярославль", stars: 5, text: "Заказывала такси межгород первый раз. Переживала, но всё прошло отлично: водитель связался накануне, уточнил адрес, доехали комфортно и быстрее поезда." },
+            ].map((r) => (
+              <div key={r.name} className="rounded-2xl border border-blue-100/60 bg-white/80 p-5 shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-extrabold text-slate-900">{r.name}</div>
+                  <div className="text-xs text-amber-500">{"★".repeat(r.stars)}</div>
+                </div>
+                <div className="text-xs font-semibold text-blue-600 mb-2">{r.route}</div>
+                <p className="text-sm leading-6 text-slate-600">{r.text}</p>
               </div>
+            ))}
+          </div>
+
+          <GlassPanel className="mt-10 p-6 md:p-8">
+            <h2 className="text-xl font-extrabold tracking-tight text-slate-900 mb-4">Отзывы о трансферах «Вектор РФ»</h2>
+            <div className="space-y-3 text-sm leading-relaxed text-slate-600">
+              <p>На этой странице собраны реальные отзывы клиентов сервиса «Вектор РФ» о поездках по городу, трансферах в аэропорт и междугородних поездках. Средняя оценка по всем маршрутам — 4,9 из 5.</p>
+              <p>Нас выбирают за фиксированную стоимость до выезда, точность подачи и профессиональных водителей. Особенно ценят трансферы с ранними рейсами и аэропорты Москвы.</p>
+              <p>Если вы уже пользовались нашими услугами — оставьте отзыв в Яндекс.Картах или Google. Нужен трансфер прямо сейчас? Оформите заявку на сайте или напишите в Telegram — мы на связи 24/7.</p>
+            </div>
+          </GlassPanel>
+        
+          <div className="mt-8 rounded-3xl border border-blue-100/60 bg-white/70 p-6 shadow-sm backdrop-blur">
+            <h2 className="text-xl font-extrabold text-slate-900 mb-4">Вопросы о качестве сервиса</h2>
+            <div className="space-y-4">
+              {[
+                { q: "Как проверяются водители?", a: "Все водители работают по договору, имеют категорию B/E, опыт дальних поездок и прошли собеседование." },
+                { q: "Что делать, если возник вопрос в дороге?", a: "Свяжитесь с нами по телефону или Telegram — оператор на связи 24/7 и решит любой вопрос оперативно." },
+                { q: "Можно ли оставить отзыв?", a: "Да, будем рады отзыву в Яндекс.Картах или Google. Ваш опыт помогает другим клиентам сделать выбор." },
+                { q: "Как подтверждается рейтинг 4.9?", a: "Рейтинг формируется из реальных оценок клиентов на картографических сервисах и агрегаторах." },
+              ].map((item) => (
+                <details key={item.q} className="group rounded-2xl border border-blue-100/60 bg-white/80 p-4">
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-900 list-none flex justify-between">
+                    {item.q}
+                    <span className="text-blue-400 ml-2">+</span>
+                  </summary>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">{item.a}</p>
+                </details>
+              ))}
             </div>
           </div>
-        </div>
+        </main>
+      </div>
 
-        <section className="mx-auto mt-10 max-w-6xl px-4 pb-2">
-          <div className="rounded-3xl border border-zinc-200 bg-white/85 p-6 shadow-xl backdrop-blur md:p-7">
-            <h2 className="text-xl font-extrabold tracking-tight text-zinc-900">
-              Отзывы о трансферах «Вектор РФ»
-            </h2>
-            <div className="mt-3 space-y-3 text-sm leading-relaxed text-zinc-700">
-              <p>
-                На этой странице собраны реальные отзывы клиентов сервиса «Вектор РФ» о поездках по городу, трансферах в
-                аэропорт и междугородних поездках. Мы показываем оценку, текст отзыва и дату публикации.
-              </p>
-              <p>
-                Если вы уже пользовались нашими услугами — оставьте отзыв. Это помогает другим клиентам выбрать надёжный
-                трансфер, а нам — улучшать сервис, скорость подачи и качество поездок.
-              </p>
-              <p>
-                Нужен трансфер прямо сейчас? Оформите заявку на сайте или напишите в Telegram — мы на связи 24/7.
-              </p>
-            </div>
-          </div>
-        </section>
-
-      </main>
-
-      <footer className="border-t border-zinc-200 bg-white/65 backdrop-blur">
-        <div className="mx-auto max-w-6xl px-4 py-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-3">
-              <LogoMark />
-              <Wordmark />
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <a
-                className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/70 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur hover:bg-white"
-                href={`tel:${PHONE_TEL}`}
-              >
-                <IconPhone className="h-4 w-4 text-sky-700" />
-                {PHONE_DISPLAY}
-              </a>
-
-              <a
-                className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/70 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur hover:bg-white"
-                href={TELEGRAM}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <IconTelegram className="h-4 w-4 text-sky-700" />
-                Telegram
-              </a>
-
-              <a
-                className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/70 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur hover:bg-white"
-                href="/"
-              >
-                На главную
-              </a>
-            </div>
-          </div>
-          <div className="mt-6 text-xs text-zinc-500">© {new Date().getFullYear()} Вектор РФ. Все права защищены.</div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

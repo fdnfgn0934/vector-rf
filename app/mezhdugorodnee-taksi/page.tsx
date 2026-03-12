@@ -1,10 +1,5 @@
-import KeywordLandingPage, { buildKeywordLandingMetadata } from "@/app/ui/keyword-landing-page";
-import { KEYWORD_LANDINGS_BY_SLUG } from "@/lib/keyword-landings";
-
-const config = KEYWORD_LANDINGS_BY_SLUG["mezhdugorodnee-taksi"];
-
-export const metadata = buildKeywordLandingMetadata(config);
+import { permanentRedirect } from "next/navigation";
 
 export default function Page() {
-  return <KeywordLandingPage config={config} />;
+  permanentRedirect("/taxi-mezhgorod");
 }

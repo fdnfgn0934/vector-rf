@@ -1,11 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { cn } from "@/lib/cn";
 import LeadForm, { type CarClass, type RouteType } from "../lead-form";
-
-function cn(...xs: Array<string | false | null | undefined>) {
-  return xs.filter(Boolean).join(" ");
-}
 
 function LogoMark() {
   return (
@@ -42,7 +39,7 @@ function Wordmark() {
       >
         Вектор РФ
       </div>
-      <div className="text-xs text-zinc-600">Трансферы и поездки по России</div>
+      <div className="text-xs text-slate-600">Трансферы и поездки по России</div>
     </div>
   );
 }
@@ -76,9 +73,9 @@ function IconTelegram({ className }: { className?: string }) {
 
 function SmallCard({ title, text }: { title: string; text: string }) {
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white/80 p-5 shadow-sm backdrop-blur">
-      <div className="text-sm font-extrabold text-zinc-900">{title}</div>
-      <div className="mt-2 text-sm leading-6 text-zinc-600">{text}</div>
+    <div className="rounded-2xl border border-blue-100/60 bg-white/80 p-5 shadow-sm backdrop-blur">
+      <div className="text-sm font-extrabold text-slate-900">{title}</div>
+      <div className="mt-2 text-sm leading-6 text-slate-600">{text}</div>
     </div>
   );
 }
@@ -92,12 +89,12 @@ export default function CityPageClient() {
   const [routeType, setRouteType] = useState<RouteType>("city");
 
   return (
-    <div className="min-h-screen text-zinc-900">
+    <div className="min-h-screen text-slate-900">
       <div className="fixed inset-0 -z-20 bg-[#f3f7ff]" />
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(1100px_520px_at_50%_-10%,rgba(56,189,248,0.35),transparent_60%),radial-gradient(900px_520px_at_12%_18%,rgba(59,130,246,0.18),transparent_55%),radial-gradient(900px_520px_at_88%_20%,rgba(99,102,241,0.14),transparent_55%)]" />
       <div className="fixed inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-white/70 to-transparent" />
 
-      <header className="sticky top-0 z-20 border-b border-zinc-200/70 bg-white/65 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-blue-100/60/70 bg-white/65 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
           <a href="/" className="flex items-center gap-3">
             <LogoMark />
@@ -109,12 +106,12 @@ export default function CityPageClient() {
               href={`tel:${PHONE_TEL}`}
               className={cn(
                 "inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-semibold",
-                "border border-zinc-200 bg-white/70 shadow-sm backdrop-blur hover:bg-white"
+                "border border-blue-100/60 bg-white/70 shadow-sm backdrop-blur hover:bg-white"
               )}
               title="Позвонить"
             >
               <IconPhone className="h-4 w-4 text-sky-700" />
-              <span className="hidden md:inline text-zinc-800">{PHONE_DISPLAY}</span>
+              <span className="hidden md:inline text-slate-800">{PHONE_DISPLAY}</span>
             </a>
 
             <a
@@ -123,7 +120,7 @@ export default function CityPageClient() {
               rel="noreferrer"
               className={cn(
                 "inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-semibold",
-                "border border-zinc-200 bg-white/70 shadow-sm backdrop-blur hover:bg-white"
+                "border border-blue-100/60 bg-white/70 shadow-sm backdrop-blur hover:bg-white"
               )}
               title="Telegram"
             >
@@ -137,8 +134,8 @@ export default function CityPageClient() {
       <main className="mx-auto max-w-6xl px-4 py-10 md:py-12">
         <div className="grid gap-8 md:grid-cols-12">
           <div className="md:col-span-7">
-            <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900">Трансферы по городу</h1>
-            <p className="mt-2 text-sm text-zinc-600">
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Трансферы по городу</h1>
+            <p className="mt-2 text-sm text-slate-600">
               Поездки по городу и встречи: подача авто по согласованию, стоимость заранее. Заявка онлайн 24/7.
             </p>
 
@@ -150,10 +147,10 @@ export default function CityPageClient() {
           </div>
 
           <div className="md:col-span-5">
-            <div className="rounded-3xl border border-zinc-200 bg-white/85 shadow-xl backdrop-blur">
-              <div className="border-b border-zinc-200 p-5">
-                <div className="text-sm font-extrabold text-zinc-900">Заявка на поездку по городу</div>
-                <div className="mt-1 text-sm text-zinc-600">Заполните форму — мы свяжемся с вами.</div>
+            <div className="rounded-3xl border border-blue-100/60 bg-white/85 shadow-xl backdrop-blur">
+              <div className="border-b border-blue-100/60 p-5">
+                <div className="text-sm font-extrabold text-slate-900">Заявка на поездку по городу</div>
+                <div className="mt-1 text-sm text-slate-600">Заполните форму — мы свяжемся с вами.</div>
               </div>
 
               <div className="p-5">

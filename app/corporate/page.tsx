@@ -1,24 +1,21 @@
 import type { Metadata } from "next";
+import { cn } from "@/lib/cn";
 import Script from "next/script";
 
 const SITE_URL = "https://vector-rf.ru";
 const SITE_NAME = "Вектор РФ";
 const CANONICAL = `${SITE_URL}/corporate`;
 
-function cn(...xs: Array<string | false | null | undefined>) {
-  return xs.filter(Boolean).join(" ");
-}
-
 export const metadata: Metadata = {
-  title: "Корпоративным клиентам",
+  title: "Корпоративные перевозки и трансферы — Вектор РФ",
   description:
-    "Корпоративные трансферы и регулярные поездки для компаний: договор, безнал, единые условия, отчётность. Работаем 24/7.",
-  alternates: { canonical: CANONICAL },
+    "Корпоративные трансферы и регулярные поездки для компаний: договор, безнал, единые условия, отчётность. Заключаем договор. Работаем 24/7.",
+  alternates: { canonical: "/corporate" },
   robots: { index: true, follow: true },
   openGraph: {
     type: "website",
     url: CANONICAL,
-    title: "Корпоративным клиентам",
+    title: "Корпоративные перевозки и трансферы — Вектор РФ",
     description:
       "Корпоративные трансферы и регулярные поездки для компаний: договор, безнал, единые условия, отчётность.",
     siteName: SITE_NAME,
@@ -27,7 +24,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Корпоративным клиентам",
+    title: "Корпоративные перевозки и трансферы — Вектор РФ",
     description:
       "Корпоративные трансферы и регулярные поездки для компаний: договор, безнал, единые условия, отчётность.",
     images: ["/og.jpg"],
@@ -69,7 +66,7 @@ function Wordmark() {
       >
         Вектор РФ
       </div>
-      <div className="text-xs text-zinc-600">Трансферы и поездки по России</div>
+      <div className="text-xs text-slate-500">Трансферы и поездки по России</div>
     </div>
   );
 }
@@ -125,17 +122,17 @@ function Badge({ children }: { children: React.ReactNode }) {
 function SectionTitle({ title, desc }: { title: string; desc: string }) {
   return (
     <div className="mb-5">
-      <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900">{title}</h1>
-      <p className="mt-2 text-sm text-zinc-600">{desc}</p>
+      <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">{title}</h1>
+      <p className="mt-2 text-sm text-slate-500">{desc}</p>
     </div>
   );
 }
 
 function Card({ title, text }: { title: string; text: string }) {
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white/80 p-5 shadow-sm backdrop-blur">
-      <div className="text-sm font-extrabold text-zinc-900">{title}</div>
-      <div className="mt-2 text-sm leading-6 text-zinc-600">{text}</div>
+    <div className="rounded-2xl border border-blue-100/60 bg-white/80 p-5 shadow-sm backdrop-blur">
+      <div className="text-sm font-bold text-slate-800">{title}</div>
+      <div className="mt-2 text-sm leading-6 text-slate-500">{text}</div>
     </div>
   );
 }
@@ -173,7 +170,7 @@ export default function CorporatePage() {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Главная", item: `${SITE_URL}/` },
-      { "@type": "ListItem", position: 2, name: "Корпоративным клиентам", item: CANONICAL },
+      { "@type": "ListItem", position: 2, name: "Корпоративные перевозки и трансферы — Вектор РФ", item: CANONICAL },
     ],
   };
 
@@ -213,7 +210,7 @@ export default function CorporatePage() {
   };
 
   return (
-    <div className="min-h-screen text-zinc-900">
+    <div className="min-h-screen text-slate-900">
       <Script
         id="ld-corporate-service"
         type="application/ld+json"
@@ -237,7 +234,7 @@ export default function CorporatePage() {
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(1100px_520px_at_50%_-10%,rgba(56,189,248,0.35),transparent_60%),radial-gradient(900px_520px_at_12%_18%,rgba(59,130,246,0.18),transparent_55%),radial-gradient(900px_520px_at_88%_20%,rgba(99,102,241,0.14),transparent_55%)]" />
       <div className="fixed inset-x-0 top-0 -z-10 h-24 bg-gradient-to-b from-white/70 to-transparent" />
 
-      <header className="sticky top-0 z-20 border-b border-zinc-200/70 bg-white/65 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-blue-100/60/70 bg-white/65 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
           <a href="/" className="flex items-center gap-3">
             <LogoMark />
@@ -249,13 +246,13 @@ export default function CorporatePage() {
               href={`tel:${PHONE_TEL}`}
               className={cn(
                 "inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-semibold",
-                "border border-zinc-200 bg-white/70 shadow-sm backdrop-blur hover:bg-white"
+                "border border-blue-100/60 bg-white/70 shadow-sm backdrop-blur hover:bg-white"
               )}
               title="Позвонить"
               aria-label="Позвонить"
             >
               <IconCall className="h-4 w-4 text-sky-700" />
-              <span className="hidden md:inline text-zinc-800">{PHONE_DISPLAY}</span>
+              <span className="hidden md:inline text-slate-800">{PHONE_DISPLAY}</span>
             </a>
 
             <a
@@ -264,7 +261,7 @@ export default function CorporatePage() {
               rel="noreferrer"
               className={cn(
                 "inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-semibold",
-                "border border-zinc-200 bg-white/70 shadow-sm backdrop-blur hover:bg-white"
+                "border border-blue-100/60 bg-white/70 shadow-sm backdrop-blur hover:bg-white"
               )}
               title="Telegram"
             >
@@ -276,7 +273,7 @@ export default function CorporatePage() {
               href="/"
               className={cn(
                 "hidden items-center justify-center rounded-full px-3 py-2 text-sm font-semibold md:inline-flex",
-                "border border-zinc-200 bg-white/70 shadow-sm backdrop-blur hover:bg-white"
+                "border border-blue-100/60 bg-white/70 shadow-sm backdrop-blur hover:bg-white"
               )}
               title="На главную"
             >
@@ -286,7 +283,7 @@ export default function CorporatePage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-10 md:py-12">
+      <main className="mx-auto max-w-4xl px-4 py-10 md:py-14">
         <div className="flex flex-wrap gap-2">
           <Badge>Договор и безнал</Badge>
           <Badge>Регулярные поездки</Badge>
@@ -295,7 +292,7 @@ export default function CorporatePage() {
 
         <div className="mt-6">
           <SectionTitle
-            title="Корпоративным клиентам"
+            title="Корпоративные перевозки и трансферы — Вектор РФ"
             desc="Организуем регулярные поездки для сотрудников и гостей: быстрое согласование, единые правила, удобная отчётность."
           />
         </div>
@@ -321,9 +318,9 @@ export default function CorporatePage() {
               />
             </div>
 
-            <div className="mt-6 rounded-3xl border border-zinc-200 bg-white/70 p-6 shadow-sm backdrop-blur md:p-7">
-              <div className="text-sm font-extrabold text-zinc-900">Как начать</div>
-              <div className="mt-3 grid gap-2 text-sm text-zinc-700">
+            <div className="mt-6 rounded-3xl border border-blue-100/60 bg-white/70 p-6 shadow-sm backdrop-blur md:p-7">
+              <div className="text-sm font-bold text-slate-800">Как начать</div>
+              <div className="mt-3 grid gap-2 text-sm text-slate-600">
                 <div className="flex items-start gap-2">
                   <span className="mt-2 h-1.5 w-1.5 rounded-full bg-sky-500" />
                   <span>Напишите или позвоните — уточним формат поездок и требования.</span>
@@ -340,8 +337,8 @@ export default function CorporatePage() {
             </div>
 
             {/* FAQ блок (контент + соответствует JSON-LD) */}
-            <section className="mt-6 rounded-3xl border border-zinc-200 bg-white/70 p-6 shadow-sm backdrop-blur md:p-7">
-              <h2 className="text-lg font-extrabold tracking-tight text-zinc-900">Вопросы и ответы</h2>
+            <section className="mt-6 rounded-3xl border border-blue-100/60 bg-white/70 p-6 shadow-sm backdrop-blur md:p-7">
+              <h2 className="text-lg font-extrabold tracking-tight text-slate-900">Вопросы и ответы</h2>
               <div className="mt-4 space-y-3">
                 {[
                   {
@@ -359,18 +356,18 @@ export default function CorporatePage() {
                 ].map((it) => (
                   <details
                     key={it.q}
-                    className="group rounded-2xl border border-zinc-200 bg-white/80 p-5 shadow-sm backdrop-blur"
+                    className="group rounded-2xl border border-blue-100/60 bg-white/80 p-5 shadow-sm backdrop-blur"
                   >
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
-                      <span className="text-sm font-extrabold text-zinc-900">{it.q}</span>
-                      <span className="select-none rounded-full border border-zinc-200 bg-white/70 px-3 py-1 text-sm text-zinc-700 group-open:hidden">
+                      <span className="text-sm font-bold text-slate-800">{it.q}</span>
+                      <span className="select-none rounded-full border border-blue-100/60 bg-white/70 px-3 py-1 text-sm text-slate-600 group-open:hidden">
                         +
                       </span>
-                      <span className="select-none rounded-full border border-zinc-200 bg-white/70 px-3 py-1 text-sm text-zinc-700 hidden group-open:inline">
+                      <span className="select-none rounded-full border border-blue-100/60 bg-white/70 px-3 py-1 text-sm text-slate-600 hidden group-open:inline">
                         —
                       </span>
                     </summary>
-                    <div className="mt-3 text-sm leading-6 text-zinc-600">{it.a}</div>
+                    <div className="mt-3 text-sm leading-6 text-slate-500">{it.a}</div>
                   </details>
                 ))}
               </div>
@@ -378,13 +375,13 @@ export default function CorporatePage() {
           </div>
 
           <aside className="md:col-span-5">
-            <div className="rounded-3xl border border-zinc-200 bg-white/85 p-6 shadow-xl backdrop-blur md:p-7">
+            <div className="rounded-3xl border border-blue-100/60 bg-white/85 p-6 shadow-xl backdrop-blur md:p-7">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-sm font-extrabold text-zinc-900">
+                  <div className="text-sm font-bold text-slate-800">
                     Связаться по корпоративным поездкам
                   </div>
-                  <div className="mt-1 text-sm text-zinc-600">Ответим и предложим условия под ваши задачи.</div>
+                  <div className="mt-1 text-sm text-slate-500">Ответим и предложим условия под ваши задачи.</div>
                 </div>
                 <div className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
                   быстро
@@ -395,7 +392,7 @@ export default function CorporatePage() {
                 <a
                   className={cn(
                     "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold",
-                    "border border-zinc-200 bg-white/80 shadow-sm backdrop-blur hover:bg-white"
+                    "border border-blue-100/60 bg-white/80 shadow-sm backdrop-blur hover:bg-white"
                   )}
                   href={`tel:${PHONE_TEL}`}
                 >
@@ -406,7 +403,7 @@ export default function CorporatePage() {
                 <a
                   className={cn(
                     "inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold",
-                    "border border-zinc-200 bg-white/80 shadow-sm backdrop-blur hover:bg-white"
+                    "border border-blue-100/60 bg-white/80 shadow-sm backdrop-blur hover:bg-white"
                   )}
                   href={TELEGRAM}
                   target="_blank"
@@ -427,14 +424,14 @@ export default function CorporatePage() {
                 </a>
               </div>
 
-              <div className="mt-4 text-xs text-zinc-500">
+              <div className="mt-4 text-xs text-slate-400">
                 Нажимая “Оставить заявку”, вы соглашаетесь на обработку персональных данных.
               </div>
             </div>
 
-            <div className="mt-6 rounded-3xl border border-zinc-200 bg-white/70 p-6 shadow-sm backdrop-blur md:p-7">
-              <div className="text-sm font-extrabold text-zinc-900">Что можно организовать</div>
-              <div className="mt-3 grid gap-2 text-sm text-zinc-700">
+            <div className="mt-6 rounded-3xl border border-blue-100/60 bg-white/70 p-6 shadow-sm backdrop-blur md:p-7">
+              <div className="text-sm font-bold text-slate-800">Что можно организовать</div>
+              <div className="mt-3 grid gap-2 text-sm text-slate-600">
                 <div className="flex items-start gap-2">
                   <span className="mt-2 h-1.5 w-1.5 rounded-full bg-sky-500" />
                   <span>Встречи в аэропорту/на вокзале и трансферы гостей.</span>
@@ -453,7 +450,7 @@ export default function CorporatePage() {
         </div>
       </main>
 
-      <footer className="border-t border-zinc-200 bg-white/65 backdrop-blur">
+      <footer className="border-t border-blue-100/60 bg-white/65 backdrop-blur">
         <div className="mx-auto max-w-6xl px-4 py-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
@@ -462,7 +459,7 @@ export default function CorporatePage() {
             </div>
             <div className="flex flex-wrap gap-2">
               <a
-                className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/70 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur hover:bg-white"
+                className="inline-flex items-center gap-2 rounded-full border border-blue-100/60 bg-white/70 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur hover:bg-white"
                 href={`tel:${PHONE_TEL}`}
               >
                 <IconPhone className="h-4 w-4 text-sky-700" />
@@ -470,7 +467,7 @@ export default function CorporatePage() {
               </a>
 
               <a
-                className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/70 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur hover:bg-white"
+                className="inline-flex items-center gap-2 rounded-full border border-blue-100/60 bg-white/70 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur hover:bg-white"
                 href={TELEGRAM}
                 target="_blank"
                 rel="noreferrer"
@@ -480,7 +477,7 @@ export default function CorporatePage() {
               </a>
 
               <a
-                className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/70 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur hover:bg-white"
+                className="inline-flex items-center gap-2 rounded-full border border-blue-100/60 bg-white/70 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur hover:bg-white"
                 href="/"
               >
                 На главную
@@ -488,7 +485,7 @@ export default function CorporatePage() {
             </div>
           </div>
 
-          <div className="mt-6 text-xs text-zinc-500">
+          <div className="mt-6 text-xs text-slate-400">
             © {new Date().getFullYear()} Вектор РФ. Все права защищены.
           </div>
         </div>

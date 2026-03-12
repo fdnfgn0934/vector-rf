@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
+import { cn } from "@/lib/cn";
 import Link from "next/link";
 import Script from "next/script";
 import ServicePage from "@/app/ui/service-page";
-import { CORE_SERVICE_LINKS } from "@/lib/internal-links";
+import { CORE_SERVICE_LINKS, KEYWORD_PAGE_LINKS } from "@/lib/internal-links";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 import type { KeywordLandingConfig } from "@/lib/keyword-landings";
-
-function cn(...xs: Array<string | false | null | undefined>) {
-  return xs.filter(Boolean).join(" ");
-}
 
 export function buildKeywordLandingMetadata(config: KeywordLandingConfig): Metadata {
   return {
@@ -39,51 +36,42 @@ function LandingBody({ config }: { config: KeywordLandingConfig }) {
   return (
     <>
       <section className="mx-auto max-w-6xl px-4 pb-8">
-        <div className="rounded-3xl border border-zinc-200 bg-white/70 p-6 shadow-sm backdrop-blur md:p-8">
-          <div className="flex flex-wrap gap-2">
-            {config.keywords.map((item) => (
-              <span
-                key={item}
-                className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-800"
-              >
-                {item}
-              </span>
-            ))}
-          </div>
+        <div className="rounded-3xl border border-blue-100/60 bg-white/70 p-6 shadow-sm backdrop-blur md:p-8">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">
+            {config.shortLabel} — как это работает
+          </h2>
+          <p className="mt-3 text-base leading-7 text-slate-600">
+            {config.shortLabel} по России: прямые поездки между городами без пересадок.
+            Оформите заявку через форму на сайте, по телефону или в Telegram — оператор перезвонит,
+            уточнит маршрут и подтвердит стоимость. В день поездки водитель подаётся к указанному адресу.
+            Для каждого маршрута доступны классы авто: стандарт, комфорт, бизнес и минивэн.
+            Рассчитываемся наличными или по безналу.
+          </p>
 
-          <div className="mt-6 grid gap-5 md:grid-cols-3">
-            <div className="rounded-2xl border border-zinc-200 bg-white/85 p-5 shadow-sm">
-              <h2 className="text-lg font-extrabold text-zinc-900">Коммерческий трафик под ключ</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-700">
-                Эта страница усилена под конкретный коммерческий интент и помогает продвигаться по широким запросам без
-                жёсткой привязки к одному городу или одному маршруту.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-zinc-200 bg-white/85 p-5 shadow-sm">
-              <h2 className="text-lg font-extrabold text-zinc-900">Связка с основными услугами</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-700">
-                Страница связана с основной услугой, маршрутными страницами и соседними кластерами, чтобы усиливать
-                индексируемость и внутреннюю перелинковку сайта.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-zinc-200 bg-white/85 p-5 shadow-sm">
-              <h2 className="text-lg font-extrabold text-zinc-900">Форма заявки прямо на странице</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-700">
-                Пользователь может сразу оставить заявку на поездку, не уходя на другую страницу. Это полезно и для SEO,
-                и для конверсии в лиды.
-              </p>
-            </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { step: "1", title: "Оставьте заявку", text: "На сайте, по телефону или в Telegram. Займёт 2 минуты." },
+              { step: "2", title: "Подтвердим стоимость", text: "Оператор уточнит детали и назовёт итоговую цену до выезда." },
+              { step: "3", title: "Водитель подаётся", text: "В нужное время по указанному адресу. Без опозданий." },
+              { step: "4", title: "Доедете с комфортом", text: "Прямой маршрут без пересадок до нужного адреса." },
+            ].map((item) => (
+              <div key={item.step} className="rounded-2xl border border-blue-100/60 bg-white/85 p-5 shadow-sm">
+                <div className="text-2xl font-black text-blue-600">{item.step}</div>
+                <div className="mt-2 text-sm font-extrabold text-slate-900">{item.title}</div>
+                <p className="mt-1 text-sm leading-5 text-slate-600">{item.text}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-8">
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-3xl border border-zinc-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-            <h2 className="text-2xl font-extrabold tracking-tight text-zinc-900">Поддерживающие разделы</h2>
-            <p className="mt-3 text-sm leading-6 text-zinc-700">
-              Эти ссылки помогают усилить кластер вокруг запроса <b>{config.shortLabel.toLowerCase()}</b> и распределяют
-              вес между основными коммерческими страницами.
+          <div className="rounded-3xl border border-blue-100/60 bg-white/70 p-6 shadow-sm backdrop-blur">
+            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Полезные направления</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-700">
+              Эти ссылки помогают дополнить  вокруг запроса <b>{config.shortLabel.toLowerCase()}</b> и помогут найти нужную информацию о поездках.
             </p>
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
               {config.supportLinks.map((item) => (
@@ -91,7 +79,7 @@ function LandingBody({ config }: { config: KeywordLandingConfig }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "rounded-2xl border border-zinc-200 bg-white/85 px-4 py-3 text-sm font-semibold text-zinc-800 shadow-sm",
+                    "rounded-2xl border border-blue-100/60 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm",
                     "hover:border-sky-200 hover:bg-white"
                   )}
                 >
@@ -101,14 +89,14 @@ function LandingBody({ config }: { config: KeywordLandingConfig }) {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-zinc-200 bg-white/70 p-6 shadow-sm backdrop-blur">
-            <h2 className="text-2xl font-extrabold tracking-tight text-zinc-900">Полезные разделы сайта</h2>
+          <div className="rounded-3xl border border-blue-100/60 bg-white/70 p-6 shadow-sm backdrop-blur">
+            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Полезные разделы сайта</h2>
             <div className="mt-5 flex flex-wrap gap-2">
               {CORE_SERVICE_LINKS.slice(0, 8).map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 shadow-sm hover:bg-zinc-50"
+                  className="inline-flex items-center rounded-full border border-blue-100/60 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm hover:bg-blue-50/50"
                 >
                   {item.label}
                 </Link>
@@ -118,11 +106,25 @@ function LandingBody({ config }: { config: KeywordLandingConfig }) {
         </div>
       </section>
 
+      <section className="mx-auto max-w-6xl px-4 pb-8">
+        <div className="rounded-3xl border border-blue-100/60 bg-white/70 p-6 shadow-sm backdrop-blur">
+          <h2 className="text-xl font-extrabold tracking-tight text-slate-900 mb-4">Что ещё часто заказывают</h2>
+          <div className="flex flex-wrap gap-2">
+            {KEYWORD_PAGE_LINKS.map((item) => (
+              <a key={item.href} href={item.href}
+                className="inline-flex items-center rounded-full border border-blue-100/60 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm hover:bg-blue-50/50">
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto max-w-6xl px-4 pb-12">
-        <div className="rounded-3xl border border-zinc-200 bg-white/70 p-6 shadow-sm backdrop-blur md:p-8">
-          <h2 className="text-2xl font-extrabold tracking-tight text-zinc-900">Популярные направления</h2>
-          <p className="mt-2 text-sm text-zinc-600">
-            Подборка маршрутных страниц, которые поддерживают кластер по запросу «{config.shortLabel.toLowerCase()}».
+        <div className="rounded-3xl border border-blue-100/60 bg-white/70 p-6 shadow-sm backdrop-blur md:p-8">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Популярные маршруты</h2>
+          <p className="mt-2 text-sm text-slate-600">
+            Популярные маршруты по данному направлению — выберите нужный и узнайте стоимость.
           </p>
           <div className="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {config.routeLinks.map((item) => (
@@ -130,7 +132,7 @@ function LandingBody({ config }: { config: KeywordLandingConfig }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "rounded-2xl border border-zinc-200 bg-white/80 px-4 py-3 text-sm font-semibold text-zinc-800 shadow-sm",
+                  "rounded-2xl border border-blue-100/60 bg-white/80 px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm",
                   "hover:border-sky-200/80 hover:bg-white"
                 )}
               >
@@ -139,13 +141,12 @@ function LandingBody({ config }: { config: KeywordLandingConfig }) {
             ))}
           </div>
 
-          <div className="mt-6 rounded-2xl border border-zinc-200 bg-white/85 p-5 text-sm leading-6 text-zinc-700 shadow-sm">
-            Для усиления коммерческого кластера эта страница также связана с основной услугой:
-            {" "}
+          <div className="mt-6 rounded-2xl border border-blue-100/60 bg-white/85 p-5 text-sm leading-6 text-slate-700 shadow-sm">
+            Также смотрите основную страницу услуги:{" "}
             <Link href={config.relatedServiceHref} className="font-semibold text-sky-700 hover:text-sky-800 hover:underline">
               {config.relatedServiceLabel}
             </Link>
-            . Такая связка помогает одновременно продвигать широкие ключи, сервисные страницы и конкретные маршруты.
+            .
           </div>
         </div>
       </section>
@@ -195,7 +196,7 @@ export default function KeywordLandingPage({ config }: { config: KeywordLandingC
   const routesJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: `Популярные маршруты: ${config.shortLabel}`,
+    name: `Маршруты: ${config.shortLabel}`,
     itemListElement: config.routeLinks.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
@@ -207,7 +208,7 @@ export default function KeywordLandingPage({ config }: { config: KeywordLandingC
   const supportJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: `Поддерживающие разделы: ${config.shortLabel}`,
+    name: `Полезные направления: ${config.shortLabel}`,
     itemListElement: config.supportLinks.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
